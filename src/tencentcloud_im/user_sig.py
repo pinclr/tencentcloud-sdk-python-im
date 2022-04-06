@@ -1,5 +1,3 @@
-
-
 import hmac
 import hashlib
 import base64
@@ -9,7 +7,7 @@ import time
 
 
 def base64_encode_url(data):
-    """ base url encode 实现"""
+    """ base url encode """
     base64_data = base64.b64encode(data)
     base64_data_str = bytes.decode(base64_data)
     base64_data_str = base64_data_str.replace('+', '*')
@@ -36,6 +34,7 @@ class TLSSigAPIv2:
     def __init__(self, sdkappid, key):
         self.__sdkappid = sdkappid
         self.__key = key
+
     ##用于生成实时音视频(TRTC)业务进房权限加密串,具体用途用法参考TRTC文档：https://cloud.tencent.com/document/product/647/32240
     # TRTC业务进房权限加密串需使用用户定义的userbuf
     # @brief 生成 userbuf

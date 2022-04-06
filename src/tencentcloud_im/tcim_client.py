@@ -20,7 +20,7 @@ import json
 from datetime import datetime
 from tencentcloud_im.user_sig import TLSSigAPIv2
 
-TENCNENT_URL = "https://console.tim.qq.com"
+TCIM_API_BASE = "https://console.tim.qq.com/v4"
 
 
 
@@ -96,7 +96,7 @@ def Resposne(ActionStatus=None, ErrorInfo=None, ErrorCode=None,
 
 
 class TCIMClient(object):
-  def __init__(self, sdk_id, key, admin, tencent_url=TENCNENT_URL, expire_time=60 * 5):
+  def __init__(self, sdk_id, key, admin, tencent_url=TCIM_API_BASE, expire_time=60 * 5):
     """
 
     :param sdk_id: sdk_id
@@ -156,7 +156,7 @@ class TCIMClient(object):
     :param face_url:
     :return:
     """
-    rest_url = "{}/v4/im_open_login_svc/account_import".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/account_import".format(self.tecent_url)
 
     data = {}
     data["UserID"] = user_id
@@ -178,7 +178,7 @@ class TCIMClient(object):
     """
     if len(user_ids) == 0:
       return
-    rest_url = "{}/v4/im_open_login_svc/multiaccount_import".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/multiaccount_import".format(self.tecent_url)
     data = {}
     data["Accounts"] = user_ids
     query = self._gen_query()
@@ -195,7 +195,7 @@ class TCIMClient(object):
     :param user_ids: user_ids 列表["a","b","c"]
     :return:
     """
-    rest_url = "{}/v4/im_open_login_svc/account_delete".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/account_delete".format(self.tecent_url)
     data = {}
     DeleteItem = []
     for user_id in user_ids:
@@ -218,7 +218,7 @@ class TCIMClient(object):
     :param user_ids: user_ids 列表["a","b","c"]
     :return:
     """
-    rest_url = "{}/v4/im_open_login_svc/account_check".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/account_check".format(self.tecent_url)
     data = {}
     DeleteItem = []
     for user_id in user_ids:
@@ -240,7 +240,7 @@ class TCIMClient(object):
     :param user_id:
     :return:
     """
-    rest_url = "{}/v4/im_open_login_svc/kick".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/kick".format(self.tecent_url)
     data = {}
     data["UserID"] = user_id
     query = self._gen_query()
@@ -256,7 +256,7 @@ class TCIMClient(object):
     :param user_ids:user_ids 列表["a","b","c"]
     :return:
     """
-    rest_url = "{}/v4/openim/query_online_status".format(self.tecent_url)
+    rest_url = "{}/openim/query_online_status".format(self.tecent_url)
     data = {}
     data["IsNeedDetail"] = 1
     data["To_Account"] = user_ids
@@ -274,7 +274,7 @@ class TCIMClient(object):
     :param friends: 需要添加哪些好友
     :return:
     """
-    rest_url = "{}/v4/sns/friend_add".format(self.tecent_url)
+    rest_url = "{}/sns/friend_add".format(self.tecent_url)
     data = {}
     data["From_Account"] = from_account
     AddFriendItem = []
@@ -298,7 +298,7 @@ class TCIMClient(object):
     :param delete_type: 删除类型：Delete_Type_Both：双向删除， Delete_Type_Single:单向删除
     :return:
     """
-    rest_url = "{}/v4/sns/friend_delete".format(self.tecent_url)
+    rest_url = "{}/sns/friend_delete".format(self.tecent_url)
     data = []
     data["From_Account"] = from_account
     data["To_Account"] = to_accounts
@@ -316,7 +316,7 @@ class TCIMClient(object):
     :param from_account:
     :return:
     """
-    rest_url = "{}/v4/sns/friend_update".format(self.tecent_url)
+    rest_url = "{}/sns/friend_update".format(self.tecent_url)
     data = []
     data["From_Account"] = from_account
     data["UpdateItem"] = update_objs
@@ -334,7 +334,7 @@ class TCIMClient(object):
     :param:start_index:分页的起始位置,后面该参数继承Response中的next_start_index
     :return:
     """
-    rest_url = "{}/v4/sns/friend_get".format(self.tecent_url)
+    rest_url = "{}/sns/friend_get".format(self.tecent_url)
     data = []
     data["From_Account"] = from_account
     data["StartIndex"] = start_index
@@ -354,7 +354,7 @@ class TCIMClient(object):
     :return:
     """
 
-    rest_url = "{}/v4/sns/group_add".format(self.tecent_url)
+    rest_url = "{}/sns/group_add".format(self.tecent_url)
     data = []
     data["From_Account"] = from_account
     data["GroupName"] = groups
@@ -373,7 +373,7 @@ class TCIMClient(object):
     :param  groups: 要删除的分组列表
     :return:
     """
-    rest_url = "{}/v4/sns/group_delete".format(self.tecent_url)
+    rest_url = "{}/sns/group_delete".format(self.tecent_url)
     data = []
     data["From_Account"] = from_account
     data["GroupName"] = groups
@@ -393,7 +393,7 @@ class TCIMClient(object):
     :param: need_friend_flag: 获取分组好友
     :return:
     """
-    rest_url = "{}/v4/sns/group_get".format(self.tecent_url)
+    rest_url = "{}/sns/group_get".format(self.tecent_url)
     data = []
     data["From_Account"] = from_account
     data["GroupName"] = groups
