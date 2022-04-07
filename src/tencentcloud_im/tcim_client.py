@@ -17,10 +17,34 @@
 import random
 import requests
 import json
+from typing import List
 from datetime import datetime
 from tencentcloud_im.user_sig import TLSSigAPIv2
+import logging
 
 TCIM_API_BASE = "https://console.tim.qq.com/v4"
+
+
+class MyLogger(object):
+
+  @staticmethod
+  def get_logger(class_name):
+    logging_level = logging.INFO
+    my_logger = logging.getLogger(class_name)
+    my_logger.setLevel(logging_level)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging_level)
+    formatter = logging.Formatter('%(asctime)s %(filename)s:%(lineno)d [%(levelname)s]%(message)s')
+    handler.setFormatter(formatter)
+    my_logger.addHandler(handler)
+    return my_logger
+
+
+logger = MyLogger.get_logger(__name__)
+
+
+
+
 
 
 
@@ -29,15 +53,17 @@ class FriendObj(object):
   好友结构体
   """
 
-  def __init__(self, to_account, remark="", group_name="", ):
+  def __init__(self, to_account,add_source, remark="", group_name="", ):
     """
     :param to_account: 目标用户 必填
     :param remark:     备注
+    :param add_source  好友来源：web,android ios
     :param group_name: 用户分组
     """
     self.To_Account = to_account
     self.Remark = remark
     self.GroupName = group_name
+    self.AddSource = "AddSource_Type_{}".format(add_source)
 
 
 class SnsItemObj(object):
@@ -51,43 +77,61 @@ class SnsItemObj(object):
   """
 
   def __init__(self, tag: str, value: str):
-    self.Tag = tag
+    """
+
+    :param tag: 需要更新的字段：
+                - Remark
+                - Group
+    :param value:
+    """
+    self.Tag = "Tag_SNS_IM_{}".format(tag)
     self.Value = value
 
 
 class UpdateFriendObj(object):
+  """
+  更新好友结构体
+  """
 
-  def __init__(self, to_account, sns_item: list[SnsItemObj.__dict__]):
+  def __init__(self, to_account, sns_items:List[SnsItemObj]):
     self.To_Account = to_account
-    self.SnsItem = sns_item
+    SnsItem = []
+    for sns_item in sns_items:
+        SnsItem.append(sns_item.__dict__)
+    self.SnsItem = SnsItem
 
 
-def Resposne(ActionStatus=None, ErrorInfo=None, ErrorCode=None,
-             FailAccounts=None, ResultItem=None, UserDataItem=None,
-             FriendNum=None, NextStartIndex=None, CompleteFlag=None):
-  """
-  :param ActionStatus: 请求处理的结果，OK 表示处理成功，FAIL 表示失败
-  :param ErrorInfo:错误信息
-  :param ErrorCode:错误码，0表示成功，非0表示失败
-  :param:ResultItem: 单个帐号的结果对象数组
-  :param FailAccounts:失败账户
-  :param: UserDataItem: 好友信息
-  :param: FriendNum:好友数
-  :param:NextStartIndex:分页接口下一页的起始位置
-  :param: CompleteFlag:分页的结束标识，非0值表示已完成全量拉取
-  :return:
-  """
-  result = {}
-  result["action_status"] = ActionStatus
-  result["error_info"] = ErrorInfo
-  result["err_code"] = ErrorCode
-  result["faile_accounts"] = FailAccounts
-  result["result_item"] = ResultItem
-  result["userdata_item"] = UserDataItem
-  result["friend_num"] = FriendNum
-  result["next_start_index"] = NextStartIndex
-  result["complate_flag"] = CompleteFlag
-  return result
+# def Resposne(ActionStatus=None, ErrorInfo=None, ErrorCode=None,
+#              FailAccounts=None, ResultItem=None, UserDataItem=None,
+#              FriendNum=None, NextStartIndex=None, CompleteFlag=None,
+#              Fail_Account=None,ErrorDisplay=None,ResultCode=None):
+#   """
+#   :param ActionStatus: 请求处理的结果，OK 表示处理成功，FAIL 表示失败
+#   :param ErrorInfo:错误信息
+#   :param ErrorCode:错误码，0表示成功，非0表示失败
+#   :param:ResultItem: 单个帐号的结果对象数组
+#   :param FailAccounts:失败账户
+#   :param: UserDataItem: 好友信息
+#   :param: FriendNum:好友数
+#   :param:NextStartIndex:分页接口下一页的起始位置
+#   :param: CompleteFlag:分页的结束标识，非0值表示已完成全量拉取
+#   :return:
+#   """
+#   result = {}
+#   result["action_status"] = ActionStatus
+#   result["error_info"] = ErrorInfo
+#   result["err_code"] = ErrorCode
+#   result["faile_accounts"] = FailAccounts
+#   result["result_item"] = ResultItem
+#   result["userdata_item"] = UserDataItem
+#   result["friend_num"] = FriendNum
+#   result["next_start_index"] = NextStartIndex
+#   result["complate_flag"] = CompleteFlag
+#   result["faile_account"] = Fail_Account
+#   result["err"]
+#
+#
+#   return result
 
 
 
@@ -159,17 +203,19 @@ class TCIMClient(object):
     rest_url = "{}/im_open_login_svc/account_import".format(self.tecent_url)
 
     data = {}
-    data["UserID"] = user_id
-    data["Nick"] = nick_name
-    data["FaceUrl"] = face_url
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+    try:
+        data["UserID"] = user_id
+        data["Nick"] = nick_name
+        data["FaceUrl"] = face_url
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("add user failed:{}".format(e))
+        return None
 
-  def batch_add_users(self, user_ids):
+
+
+  def batch_add_users(self, user_ids:List[str]):
 
     """
     批量增加用户:单词最多100个
@@ -178,17 +224,19 @@ class TCIMClient(object):
     """
     if len(user_ids) == 0:
       return
-    rest_url = "{}/im_open_login_svc/multiaccount_import".format(self.tecent_url)
-    data = {}
-    data["Accounts"] = user_ids
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
 
-  def del_user(self, user_ids: list[str]):
+    try:
+        rest_url = "{}/v4/im_open_login_svc/multiaccount_import".format(self.tecent_url)
+        data = {}
+        data["Accounts"] = user_ids
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("batch add user failed:{}".format(e))
+        return None
+
+
+  def del_user(self, user_ids:List[str]):
 
     """
     删除用户
@@ -198,20 +246,20 @@ class TCIMClient(object):
     rest_url = "{}/im_open_login_svc/account_delete".format(self.tecent_url)
     data = {}
     DeleteItem = []
-    for user_id in user_ids:
-      tmp_map = {}
-      tmp_map["UserID"] = user_id
-      DeleteItem.append(tmp_map)
+    try:
+        for user_id in user_ids:
+          tmp_map = {}
+          tmp_map["UserID"] = user_id
+          DeleteItem.append(tmp_map)
 
-    data["DeleteItem"] = DeleteItem
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+        data["DeleteItem"] = DeleteItem
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("delete user failed:{}".format(e))
+        return None
 
-  def search_user(self, user_ids: list[str]):
+  def search_user(self, user_ids:List[str]):
 
     """
     查询账户
@@ -220,19 +268,21 @@ class TCIMClient(object):
     """
     rest_url = "{}/im_open_login_svc/account_check".format(self.tecent_url)
     data = {}
-    DeleteItem = []
-    for user_id in user_ids:
-      tmp_map = {}
-      tmp_map["UserID"] = user_id
-      DeleteItem.append(tmp_map)
+    CheckItem = []
+    try:
+        for user_id in user_ids:
+          tmp_map = {}
+          tmp_map["UserID"] = user_id
+          CheckItem.append(tmp_map)
 
-    data["CheckItem"] = DeleteItem
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+        data["CheckItem"] = CheckItem
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+
+    except Exception as e:
+        logger.error("search user failed:{}".format(e))
+        return None
+
 
   def abolition_user_sig(self, user_id):
     """
@@ -243,14 +293,15 @@ class TCIMClient(object):
     rest_url = "{}/im_open_login_svc/kick".format(self.tecent_url)
     data = {}
     data["UserID"] = user_id
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+    try:
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("abolish user sig failed:{} ".format(e))
+        return None
 
-  def check_user_online(self, user_ids):
+
+  def check_user_online(self, user_ids:List[str]):
     """
     检查账户是否在线状态
     :param user_ids:user_ids 列表["a","b","c"]
@@ -258,16 +309,17 @@ class TCIMClient(object):
     """
     rest_url = "{}/openim/query_online_status".format(self.tecent_url)
     data = {}
-    data["IsNeedDetail"] = 1
-    data["To_Account"] = user_ids
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+    try:
+        data["IsNeedDetail"] = 1
+        data["To_Account"] = user_ids
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("check user status failed:{}".format(e))
+        return None
 
-  def add_friend(self, from_account: str, friends: list[FriendObj]):
+
+  def add_friend(self, from_account: str, friends:List[FriendObj]):
     """
     添加好友
     :param from_account: 需要添加好友的账户
@@ -278,19 +330,20 @@ class TCIMClient(object):
     data = {}
     data["From_Account"] = from_account
     AddFriendItem = []
-    for friend in friends:
-      AddFriendItem.append(friend.__dict__)
-    data["AddFriendItem"] = AddFriendItem
-    data["AddType"] = "Add_Type_Both"
-    data["ForceAddFlags"] = 1
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+    try:
+        for friend in friends:
+          AddFriendItem.append(friend.__dict__)
+        data["AddFriendItem"] = AddFriendItem
+        data["AddType"] = "Add_Type_Both"
+        data["ForceAddFlags"] = 1
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("add friend failed:{}".format(e))
+        return None
 
-  def delete_friends(self, from_account: str, to_accounts: list[str], delete_type="Delete_Type_Both"):
+
+  def delete_friends(self, from_account: str, to_accounts: List[str], delete_type="Delete_Type_Both"):
     """
     删除好友
     :param from_account: 需要删除好友的账户
@@ -298,54 +351,64 @@ class TCIMClient(object):
     :param delete_type: 删除类型：Delete_Type_Both：双向删除， Delete_Type_Single:单向删除
     :return:
     """
-    rest_url = "{}/sns/friend_delete".format(self.tecent_url)
-    data = []
-    data["From_Account"] = from_account
-    data["To_Account"] = to_accounts
-    data["DeleteType"] = delete_type
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+    rest_url = "{}/v4/sns/friend_delete".format(self.tecent_url)
+    data = {}
+    try:
+        data["From_Account"] = from_account
+        data["To_Account"] = to_accounts
+        data["DeleteType"] = delete_type
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("delete user failed:{}".format(e))
+        return None
 
-  def update_friend(self, from_account: str, update_objs: list[UpdateFriendObj.__dict__]):
+
+  def update_friend(self, from_account: str, update_objs:List[UpdateFriendObj]):
     """
     更新好友
     :param from_account:
     :return:
     """
-    rest_url = "{}/sns/friend_update".format(self.tecent_url)
-    data = []
-    data["From_Account"] = from_account
-    data["UpdateItem"] = update_objs
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+
+    rest_url = "{}/v4/sns/friend_update".format(self.tecent_url)
+    data = {}
+    try:
+        updateItems = []
+        for update_obj in update_objs:
+            updateItems.append(update_obj.__dict__)
+        data["From_Account"] = from_account
+        data["UpdateItem"] = updateItems
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("update freind failed:{}".format(e))
+        return None
+
 
   def get_friends(self, from_account: str, start_index: int = 0):
+
     """
     拉取全部好友
     :param from_account:指定要拉取好友数据的用户的 UserID
     :param:start_index:分页的起始位置,后面该参数继承Response中的next_start_index
     :return:
     """
-    rest_url = "{}/sns/friend_get".format(self.tecent_url)
-    data = []
-    data["From_Account"] = from_account
-    data["StartIndex"] = start_index
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
 
-  def add_group(self, from_account: str, groups: list[str], to_accounts: list[str]):
+    rest_url = "{}/v4/sns/friend_get".format(self.tecent_url)
+    data = {}
+    try:
+        data["From_Account"] = from_account
+        data["StartIndex"] = start_index
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("get user failed:{}".format(e))
+        return None
+
+
+
+  def add_group(self, from_account: str, groups:List[str], to_accounts:List[str]):
     """
     添加分组
     :param from_account  :需要为该 UserID 添加新分组
@@ -354,38 +417,43 @@ class TCIMClient(object):
     :return:
     """
 
-    rest_url = "{}/sns/group_add".format(self.tecent_url)
-    data = []
-    data["From_Account"] = from_account
-    data["GroupName"] = groups
-    data["To_Account"] = to_accounts
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
+    rest_url = "{}/v4/sns/group_add".format(self.tecent_url)
+    data = {}
+    try:
+        data["From_Account"] = from_account
+        data["GroupName"] = groups
+        data["To_Account"] = to_accounts
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("add group failed:{}".format(e))
+        return None
 
-  def delete_group(self, from_account: str, groups: list[str]):
+
+
+  def delete_group(self, from_account: str, groups:List[str]):
     """
     删除分组
     :param: from_account:需要删除该 UserID 的分组
     :param  groups: 要删除的分组列表
     :return:
     """
-    rest_url = "{}/sns/group_delete".format(self.tecent_url)
-    data = []
-    data["From_Account"] = from_account
-    data["GroupName"] = groups
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
 
-  def get_group(self, from_account: str, groups: list[str] = [],
-                need_friend_flag: str = "Need_Friend_Type_Yes"):
+    try:
+        rest_url = "{}/v4/sns/group_delete".format(self.tecent_url)
+        data = {}
+        data["From_Account"] = from_account
+        data["GroupName"] = groups
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("delete group failed:{}".format(e))
+        return None
+
+
+
+  def get_group(self, from_account: str, groups:List[str]=[],
+                need_friend_flag:str = "Need_Friend_Type_Yes"):
     """
     拉取分组
     :param from_account:指定要拉取分组的用户的 UserID
@@ -393,15 +461,20 @@ class TCIMClient(object):
     :param: need_friend_flag: 获取分组好友
     :return:
     """
-    rest_url = "{}/sns/group_get".format(self.tecent_url)
-    data = []
-    data["From_Account"] = from_account
-    data["GroupName"] = groups
-    data["NeedFriend"] = need_friend_flag
-    query = self._gen_query()
-    result = requests.post(rest_url, params=query, data=json.dumps(data))
-    if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
-    else:
-      return None
 
+    rest_url = "{}/v4/sns/group_get".format(self.tecent_url)
+    data = {}
+    try:
+        data["From_Account"] = from_account
+        if len(groups) >0:
+            data["GroupName"] = groups
+        data["NeedFriend"] = need_friend_flag
+        query = self._gen_query()
+        return requests.post(rest_url, params=query, data=json.dumps(data))
+    except Exception as e:
+        logger.error("get group failed:{}".format(e))
+        return None
+
+
+if __name__ == "__main__":
+  pass
