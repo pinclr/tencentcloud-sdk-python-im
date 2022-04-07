@@ -468,45 +468,7 @@ class TCIMClient(object):
 
 
 if __name__ == "__main__":
-  sdk_id = ""
-  key = ""
-  admin = ""
-  client = TCIMClient(sdk_id=sdk_id,key=key,admin=admin)
-
-  # respone = client.search_user(["user0","user1"])
-  # print(respone.content)
-
-
-  # response = client.add_single_user(user_id="weicheng33",nick_name="xxx",face_url="")
-  # print(response.status_code)
-  # print(response.content)
-  #
-  # response = client.batch_add_users(["ss","vv","sss","vvvv"])
-  # print(response.content)
-  # response = client.del_user(["ss","vv","sss","vvvv"])
-  # print(response.content)
-
-  # response = client.add_friend(from_account="user1",friends=[FriendObj(to_account="user2",add_source="web")])
-  # print(response.content)
-
-  # response = client.delete_friends(from_account="weicheng123",to_accounts=["weicheng22"])
-  # print(response.content)
-
-  # ss  = UpdateFriendObj(to_account="weicheng22",sns_items=[SnsItemObj(tag="Remark",value="xdddfdf")])
-  # response = client.update_friend(from_account="weicheng123",update_objs=[ss])
-  # print(response.content)
-  # #
-  # response = client.get_friends(from_account="weicheng22")
-  # print(response.content)
-  #
-  # response = client.add_group(from_account="user1",groups=["sss"],to_accounts=["user2"])
-  # print(response.content)
-  #
-  # response = client.delete_group(from_account="user1",groups=["sss"])
-  # print(response.content)
-
-  # response = client.get_group(from_account="user1",groups=["sss"])
-  # print(response.content)
+  pass
 
 
 
