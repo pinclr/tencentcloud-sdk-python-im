@@ -143,9 +143,9 @@ class TCIMClient(object):
 
     :param sdk_id: sdk_id
     :param key:    key
-    :param admin:  管理员账户
-    :param tencent_url:  腾讯URL
-    :param expire_time:  过期时间
+    :param admin:  user name of the admin
+    :param tencent_url:  Tencent Cloud IM API URL
+    :param expire_time: 
     """
     self.sdk_id = sdk_id
     self.key = key
@@ -155,7 +155,7 @@ class TCIMClient(object):
     self.next_time = datetime.now()
     self.user_sig = None
 
-  def get_user_sig(self, user_id: str, expire_time: str):
+  def get_user_sig(self, user_id: str, expire_time: int = 180 * 86400):
     """
     生成user_sig
     :param user_id: 用户user_id,
