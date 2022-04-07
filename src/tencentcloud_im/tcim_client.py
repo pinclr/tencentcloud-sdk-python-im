@@ -62,32 +62,37 @@ class UpdateFriendObj(object):
     self.SnsItem = sns_item
 
 
-def Resposne(ActionStatus=None, ErrorInfo=None, ErrorCode=None,
-             FailAccounts=None, ResultItem=None, UserDataItem=None,
-             FriendNum=None, NextStartIndex=None, CompleteFlag=None):
-  """
-  :param ActionStatus: 请求处理的结果，OK 表示处理成功，FAIL 表示失败
-  :param ErrorInfo:错误信息
-  :param ErrorCode:错误码，0表示成功，非0表示失败
-  :param:ResultItem: 单个帐号的结果对象数组
-  :param FailAccounts:失败账户
-  :param: UserDataItem: 好友信息
-  :param: FriendNum:好友数
-  :param:NextStartIndex:分页接口下一页的起始位置
-  :param: CompleteFlag:分页的结束标识，非0值表示已完成全量拉取
-  :return:
-  """
-  result = {}
-  result["action_status"] = ActionStatus
-  result["error_info"] = ErrorInfo
-  result["err_code"] = ErrorCode
-  result["faile_accounts"] = FailAccounts
-  result["result_item"] = ResultItem
-  result["userdata_item"] = UserDataItem
-  result["friend_num"] = FriendNum
-  result["next_start_index"] = NextStartIndex
-  result["complate_flag"] = CompleteFlag
-  return result
+# def Resposne(ActionStatus=None, ErrorInfo=None, ErrorCode=None,
+#              FailAccounts=None, ResultItem=None, UserDataItem=None,
+#              FriendNum=None, NextStartIndex=None, CompleteFlag=None,
+#              Fail_Account=None,ErrorDisplay=None,ResultCode=None):
+#   """
+#   :param ActionStatus: 请求处理的结果，OK 表示处理成功，FAIL 表示失败
+#   :param ErrorInfo:错误信息
+#   :param ErrorCode:错误码，0表示成功，非0表示失败
+#   :param:ResultItem: 单个帐号的结果对象数组
+#   :param FailAccounts:失败账户
+#   :param: UserDataItem: 好友信息
+#   :param: FriendNum:好友数
+#   :param:NextStartIndex:分页接口下一页的起始位置
+#   :param: CompleteFlag:分页的结束标识，非0值表示已完成全量拉取
+#   :return:
+#   """
+#   result = {}
+#   result["action_status"] = ActionStatus
+#   result["error_info"] = ErrorInfo
+#   result["err_code"] = ErrorCode
+#   result["faile_accounts"] = FailAccounts
+#   result["result_item"] = ResultItem
+#   result["userdata_item"] = UserDataItem
+#   result["friend_num"] = FriendNum
+#   result["next_start_index"] = NextStartIndex
+#   result["complate_flag"] = CompleteFlag
+#   result["faile_account"] = Fail_Account
+#   result["err"]
+#
+#
+#   return result
 
 
 
@@ -165,7 +170,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -184,7 +189,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -207,7 +212,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -230,7 +235,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -246,7 +251,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -263,7 +268,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -286,7 +291,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -306,7 +311,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -323,7 +328,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -341,7 +346,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -362,7 +367,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -380,7 +385,7 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
 
@@ -401,7 +406,12 @@ class TCIMClient(object):
     query = self._gen_query()
     result = requests.post(rest_url, params=query, data=json.dumps(data))
     if result.status_code == 200:
-      return Resposne(**json.loads(result.content))
+      return json.loads(result.content)
     else:
       return None
+
+if __name__ == "__main__":
+  pass
+
+
 
