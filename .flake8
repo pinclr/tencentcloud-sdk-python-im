@@ -1,0 +1,15 @@
+[flake8]
+
+ignore = D203, E111, E501, E121, E114, E131, E841, F841, E251
+
+exclude =
+  # No need to traverse our git directory
+  .git,
+  # There's no value in checking cache directories
+  __pycache__,
+  # nginx config
+  nginx,
+
+max-complexity = 14
+
+max-line-length = 100
