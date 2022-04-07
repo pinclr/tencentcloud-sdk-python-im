@@ -22,7 +22,7 @@ from datetime import datetime
 from tencentcloud_im.user_sig import TLSSigAPIv2
 import logging
 
-TENCNENT_URL = "https://console.tim.qq.com"
+TCIM_API_BASE = "https://console.tim.qq.com/v4"
 
 
 class MyLogger(object):
@@ -140,7 +140,7 @@ class UpdateFriendObj(object):
 
 
 class TCIMClient(object):
-  def __init__(self, sdk_id, key, admin, tencent_url=TENCNENT_URL, expire_time=60 * 5):
+  def __init__(self, sdk_id, key, admin, tencent_url=TCIM_API_BASE, expire_time=60 * 5):
     """
 
     :param sdk_id: sdk_id
@@ -200,7 +200,7 @@ class TCIMClient(object):
     :param face_url:
     :return:
     """
-    rest_url = "{}/v4/im_open_login_svc/account_import".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/account_import".format(self.tecent_url)
 
     data = {}
     try:
@@ -224,6 +224,7 @@ class TCIMClient(object):
     """
     if len(user_ids) == 0:
       return
+
     try:
         rest_url = "{}/v4/im_open_login_svc/multiaccount_import".format(self.tecent_url)
         data = {}
@@ -234,6 +235,7 @@ class TCIMClient(object):
         logger.error("batch add user failed:{}".format(e))
         return None
 
+
   def del_user(self, user_ids:List[str]):
 
     """
@@ -241,7 +243,7 @@ class TCIMClient(object):
     :param user_ids: user_ids 列表["a","b","c"]
     :return:
     """
-    rest_url = "{}/v4/im_open_login_svc/account_delete".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/account_delete".format(self.tecent_url)
     data = {}
     DeleteItem = []
     try:
@@ -264,7 +266,7 @@ class TCIMClient(object):
     :param user_ids: user_ids 列表["a","b","c"]
     :return:
     """
-    rest_url = "{}/v4/im_open_login_svc/account_check".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/account_check".format(self.tecent_url)
     data = {}
     CheckItem = []
     try:
@@ -288,7 +290,7 @@ class TCIMClient(object):
     :param user_id:
     :return:
     """
-    rest_url = "{}/v4/im_open_login_svc/kick".format(self.tecent_url)
+    rest_url = "{}/im_open_login_svc/kick".format(self.tecent_url)
     data = {}
     data["UserID"] = user_id
     try:
@@ -305,7 +307,7 @@ class TCIMClient(object):
     :param user_ids:user_ids 列表["a","b","c"]
     :return:
     """
-    rest_url = "{}/v4/openim/query_online_status".format(self.tecent_url)
+    rest_url = "{}/openim/query_online_status".format(self.tecent_url)
     data = {}
     try:
         data["IsNeedDetail"] = 1
@@ -324,7 +326,7 @@ class TCIMClient(object):
     :param friends: 需要添加哪些好友
     :return:
     """
-    rest_url = "{}/v4/sns/friend_add".format(self.tecent_url)
+    rest_url = "{}/sns/friend_add".format(self.tecent_url)
     data = {}
     data["From_Account"] = from_account
     AddFriendItem = []
@@ -334,7 +336,6 @@ class TCIMClient(object):
         data["AddFriendItem"] = AddFriendItem
         data["AddType"] = "Add_Type_Both"
         data["ForceAddFlags"] = 1
-        print(data)
         query = self._gen_query()
         return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
@@ -350,7 +351,6 @@ class TCIMClient(object):
     :param delete_type: 删除类型：Delete_Type_Both：双向删除， Delete_Type_Single:单向删除
     :return:
     """
-
     rest_url = "{}/v4/sns/friend_delete".format(self.tecent_url)
     data = {}
     try:
@@ -370,6 +370,7 @@ class TCIMClient(object):
     :param from_account:
     :return:
     """
+
     rest_url = "{}/v4/sns/friend_update".format(self.tecent_url)
     data = {}
     try:
@@ -384,13 +385,16 @@ class TCIMClient(object):
         logger.error("update freind failed:{}".format(e))
         return None
 
-  def get_friends(self, from_account: str, start_index:int = 0):
+
+  def get_friends(self, from_account: str, start_index: int = 0):
+
     """
     拉取全部好友
     :param from_account:指定要拉取好友数据的用户的 UserID
     :param:start_index:分页的起始位置,后面该参数继承Response中的next_start_index
     :return:
     """
+
     rest_url = "{}/v4/sns/friend_get".format(self.tecent_url)
     data = {}
     try:
@@ -401,6 +405,7 @@ class TCIMClient(object):
     except Exception as e:
         logger.error("get user failed:{}".format(e))
         return None
+
 
 
   def add_group(self, from_account: str, groups:List[str], to_accounts:List[str]):
@@ -425,6 +430,7 @@ class TCIMClient(object):
         return None
 
 
+
   def delete_group(self, from_account: str, groups:List[str]):
     """
     删除分组
@@ -432,6 +438,7 @@ class TCIMClient(object):
     :param  groups: 要删除的分组列表
     :return:
     """
+
     try:
         rest_url = "{}/v4/sns/group_delete".format(self.tecent_url)
         data = {}
@@ -444,6 +451,7 @@ class TCIMClient(object):
         return None
 
 
+
   def get_group(self, from_account: str, groups:List[str]=[],
                 need_friend_flag:str = "Need_Friend_Type_Yes"):
     """
@@ -453,6 +461,7 @@ class TCIMClient(object):
     :param: need_friend_flag: 获取分组好友
     :return:
     """
+
     rest_url = "{}/v4/sns/group_get".format(self.tecent_url)
     data = {}
     try:
@@ -469,14 +478,3 @@ class TCIMClient(object):
 
 if __name__ == "__main__":
   pass
-
-
-
-
-
-
-
-
-
-
-
