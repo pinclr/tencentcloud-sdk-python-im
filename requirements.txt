@@ -1,1 +1,2 @@
 requests==2.25.1
+tls-sig-api-v2==1.1

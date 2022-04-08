@@ -20,8 +20,7 @@ from datetime import datetime
 from typing import List
 
 import requests
-
-from tencentcloud_im.user_sig import TLSSigAPIv2
+from TLSSigAPIv2 import TLSSigAPIv2
 
 TCIM_API_BASE = "https://console.tim.qq.com/v4"
 
@@ -163,7 +162,7 @@ class TCIMClient(object):
     :return:
     """
     api = TLSSigAPIv2(self.sdk_id, self.key)
-    sig = api.genUserSig(user_id, expire_time)
+    sig = api.gen_sig(user_id, expire_time)
     return sig
 
   def _gen_query(self):
