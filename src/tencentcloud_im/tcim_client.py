@@ -13,14 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import random
-import requests
 import json
-from typing import List
-from datetime import datetime
-from tencentcloud_im.user_sig import TLSSigAPIv2
 import logging
+import random
+from datetime import datetime
+from typing import List
+
+import requests
+
+from tencentcloud_im.user_sig import TLSSigAPIv2
 
 TCIM_API_BASE = "https://console.tim.qq.com/v4"
 
@@ -43,17 +44,18 @@ class MyLogger(object):
 logger = MyLogger.get_logger(__name__)
 
 
-
-
-
-
-
 class FriendObj(object):
   """
   好友结构体
   """
 
-  def __init__(self, to_account,add_source, remark="", group_name="", ):
+  def __init__(
+    self,
+    to_account,
+    add_source,
+    remark="",
+    group_name="",
+  ):
     """
     :param to_account: 目标用户 必填
     :param remark:     备注
@@ -93,11 +95,11 @@ class UpdateFriendObj(object):
   更新好友结构体
   """
 
-  def __init__(self, to_account, sns_items:List[SnsItemObj]):
+  def __init__(self, to_account, sns_items: List[SnsItemObj]):
     self.To_Account = to_account
     SnsItem = []
     for sns_item in sns_items:
-        SnsItem.append(sns_item.__dict__)
+      SnsItem.append(sns_item.__dict__)
     self.SnsItem = SnsItem
 
 
@@ -134,20 +136,16 @@ class UpdateFriendObj(object):
 #   return result
 
 
-
-
-
-
-
 class TCIMClient(object):
+
   def __init__(self, sdk_id, key, admin, tencent_url=TCIM_API_BASE, expire_time=60 * 5):
     """
 
     :param sdk_id: sdk_id
     :param key:    key
-    :param admin:  管理员账户
-    :param tencent_url:  腾讯URL
-    :param expire_time:  过期时间
+    :param admin:  user name of the admin
+    :param tencent_url:  Tencent Cloud IM API URL
+    :param expire_time: 
     """
     self.sdk_id = sdk_id
     self.key = key
@@ -157,7 +155,7 @@ class TCIMClient(object):
     self.next_time = datetime.now()
     self.user_sig = None
 
-  def get_user_sig(self, user_id: str, expire_time: str):
+  def get_user_sig(self, user_id: str, expire_time: int = 180 * 86400):
     """
     生成user_sig
     :param user_id: 用户user_id,
@@ -204,19 +202,16 @@ class TCIMClient(object):
 
     data = {}
     try:
-        data["UserID"] = user_id
-        data["Nick"] = nick_name
-        data["FaceUrl"] = face_url
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      data["UserID"] = user_id
+      data["Nick"] = nick_name
+      data["FaceUrl"] = face_url
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("add user failed:{}".format(e))
-        return None
+      logger.error("add user failed:{}".format(e))
+      return None
 
-
-
-  def batch_add_users(self, user_ids:List[str]):
-
+  def batch_add_users(self, user_ids: List[str]):
     """
     批量增加用户:单词最多100个
     :param user_ids: user_ids 列表["a","b","c"]
@@ -232,12 +227,10 @@ class TCIMClient(object):
         query = self._gen_query()
         return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("batch add user failed:{}".format(e))
-        return None
+      logger.error("batch add user failed:{}".format(e))
+      return None
 
-
-  def del_user(self, user_ids:List[str]):
-
+  def del_user(self, user_ids: List[str]):
     """
     删除用户
     :param user_ids: user_ids 列表["a","b","c"]
@@ -247,20 +240,19 @@ class TCIMClient(object):
     data = {}
     DeleteItem = []
     try:
-        for user_id in user_ids:
-          tmp_map = {}
-          tmp_map["UserID"] = user_id
-          DeleteItem.append(tmp_map)
+      for user_id in user_ids:
+        tmp_map = {}
+        tmp_map["UserID"] = user_id
+        DeleteItem.append(tmp_map)
 
-        data["DeleteItem"] = DeleteItem
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      data["DeleteItem"] = DeleteItem
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("delete user failed:{}".format(e))
-        return None
+      logger.error("delete user failed:{}".format(e))
+      return None
 
-  def search_user(self, user_ids:List[str]):
-
+  def search_user(self, user_ids: List[str]):
     """
     查询账户
     :param user_ids: user_ids 列表["a","b","c"]
@@ -270,19 +262,18 @@ class TCIMClient(object):
     data = {}
     CheckItem = []
     try:
-        for user_id in user_ids:
-          tmp_map = {}
-          tmp_map["UserID"] = user_id
-          CheckItem.append(tmp_map)
+      for user_id in user_ids:
+        tmp_map = {}
+        tmp_map["UserID"] = user_id
+        CheckItem.append(tmp_map)
 
-        data["CheckItem"] = CheckItem
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      data["CheckItem"] = CheckItem
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
 
     except Exception as e:
-        logger.error("search user failed:{}".format(e))
-        return None
-
+      logger.error("search user failed:{}".format(e))
+      return None
 
   def abolition_user_sig(self, user_id):
     """
@@ -294,14 +285,13 @@ class TCIMClient(object):
     data = {}
     data["UserID"] = user_id
     try:
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("abolish user sig failed:{} ".format(e))
-        return None
+      logger.error("abolish user sig failed:{} ".format(e))
+      return None
 
-
-  def check_user_online(self, user_ids:List[str]):
+  def check_user_online(self, user_ids: List[str]):
     """
     检查账户是否在线状态
     :param user_ids:user_ids 列表["a","b","c"]
@@ -310,16 +300,15 @@ class TCIMClient(object):
     rest_url = "{}/openim/query_online_status".format(self.tecent_url)
     data = {}
     try:
-        data["IsNeedDetail"] = 1
-        data["To_Account"] = user_ids
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      data["IsNeedDetail"] = 1
+      data["To_Account"] = user_ids
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("check user status failed:{}".format(e))
-        return None
+      logger.error("check user status failed:{}".format(e))
+      return None
 
-
-  def add_friend(self, from_account: str, friends:List[FriendObj]):
+  def add_friend(self, from_account: str, friends: List[FriendObj]):
     """
     添加好友
     :param from_account: 需要添加好友的账户
@@ -331,19 +320,20 @@ class TCIMClient(object):
     data["From_Account"] = from_account
     AddFriendItem = []
     try:
-        for friend in friends:
-          AddFriendItem.append(friend.__dict__)
-        data["AddFriendItem"] = AddFriendItem
-        data["AddType"] = "Add_Type_Both"
-        data["ForceAddFlags"] = 1
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      for friend in friends:
+        AddFriendItem.append(friend.__dict__)
+      data["AddFriendItem"] = AddFriendItem
+      data["AddType"] = "Add_Type_Both"
+      data["ForceAddFlags"] = 1
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("add friend failed:{}".format(e))
-        return None
+      logger.error("add friend failed:{}".format(e))
+      return None
 
-
-  def delete_friends(self, from_account: str, to_accounts: List[str], delete_type="Delete_Type_Both"):
+  def delete_friends(
+    self, from_account: str, to_accounts: List[str], delete_type="Delete_Type_Both"
+  ):
     """
     删除好友
     :param from_account: 需要删除好友的账户
@@ -354,17 +344,16 @@ class TCIMClient(object):
     rest_url = "{}/sns/friend_delete".format(self.tecent_url)
     data = {}
     try:
-        data["From_Account"] = from_account
-        data["To_Account"] = to_accounts
-        data["DeleteType"] = delete_type
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      data["From_Account"] = from_account
+      data["To_Account"] = to_accounts
+      data["DeleteType"] = delete_type
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("delete user failed:{}".format(e))
-        return None
+      logger.error("delete user failed:{}".format(e))
+      return None
 
-
-  def update_friend(self, from_account: str, update_objs:List[UpdateFriendObj]):
+  def update_friend(self, from_account: str, update_objs: List[UpdateFriendObj]):
     """
     更新好友
     :param from_account:
@@ -374,20 +363,18 @@ class TCIMClient(object):
     rest_url = "{}/sns/friend_update".format(self.tecent_url)
     data = {}
     try:
-        updateItems = []
-        for update_obj in update_objs:
-            updateItems.append(update_obj.__dict__)
-        data["From_Account"] = from_account
-        data["UpdateItem"] = updateItems
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      updateItems = []
+      for update_obj in update_objs:
+        updateItems.append(update_obj.__dict__)
+      data["From_Account"] = from_account
+      data["UpdateItem"] = updateItems
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("update freind failed:{}".format(e))
-        return None
-
+      logger.error("update freind failed:{}".format(e))
+      return None
 
   def get_friends(self, from_account: str, start_index: int = 0):
-
     """
     拉取全部好友
     :param from_account:指定要拉取好友数据的用户的 UserID
@@ -398,17 +385,15 @@ class TCIMClient(object):
     rest_url = "{}/sns/friend_get".format(self.tecent_url)
     data = {}
     try:
-        data["From_Account"] = from_account
-        data["StartIndex"] = start_index
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      data["From_Account"] = from_account
+      data["StartIndex"] = start_index
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("get user failed:{}".format(e))
-        return None
+      logger.error("get user failed:{}".format(e))
+      return None
 
-
-
-  def add_group(self, from_account: str, groups:List[str], to_accounts:List[str]):
+  def add_group(self, from_account: str, groups: List[str], to_accounts: List[str]):
     """
     添加分组
     :param from_account  :需要为该 UserID 添加新分组
@@ -420,18 +405,16 @@ class TCIMClient(object):
     rest_url = "{}/sns/group_add".format(self.tecent_url)
     data = {}
     try:
-        data["From_Account"] = from_account
-        data["GroupName"] = groups
-        data["To_Account"] = to_accounts
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      data["From_Account"] = from_account
+      data["GroupName"] = groups
+      data["To_Account"] = to_accounts
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("add group failed:{}".format(e))
-        return None
+      logger.error("add group failed:{}".format(e))
+      return None
 
-
-
-  def delete_group(self, from_account: str, groups:List[str]):
+  def delete_group(self, from_account: str, groups: List[str]):
     """
     删除分组
     :param: from_account:需要删除该 UserID 的分组
@@ -446,14 +429,17 @@ class TCIMClient(object):
         data["GroupName"] = groups
         query = self._gen_query()
         return requests.post(rest_url, params=query, data=json.dumps(data))
+
     except Exception as e:
-        logger.error("delete group failed:{}".format(e))
-        return None
+      logger.error("delete group failed:{}".format(e))
+      return None
 
-
-
-  def get_group(self, from_account: str, groups:List[str]=[],
-                need_friend_flag:str = "Need_Friend_Type_Yes"):
+  def get_group(
+    self,
+    from_account: str,
+    groups: List[str] = [],
+    need_friend_flag: str = "Need_Friend_Type_Yes"
+  ):
     """
     拉取分组
     :param from_account:指定要拉取分组的用户的 UserID
@@ -465,18 +451,16 @@ class TCIMClient(object):
     rest_url = "{}/sns/group_get".format(self.tecent_url)
     data = {}
     try:
-        data["From_Account"] = from_account
-        if len(groups) >0:
-            data["GroupName"] = groups
-        data["NeedFriend"] = need_friend_flag
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(data))
+      data["From_Account"] = from_account
+      if len(groups) > 0:
+        data["GroupName"] = groups
+      data["NeedFriend"] = need_friend_flag
+      query = self._gen_query()
+      return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-        logger.error("get group failed:{}".format(e))
-        return None
+      logger.error("get group failed:{}".format(e))
+      return None
 
 
 if __name__ == "__main__":
     pass
-
-
