@@ -226,7 +226,7 @@ class TCIMClient(object):
       return
 
     try:
-        rest_url = "{}/v4/im_open_login_svc/multiaccount_import".format(self.tecent_url)
+        rest_url = "{}/im_open_login_svc/multiaccount_import".format(self.tecent_url)
         data = {}
         data["Accounts"] = user_ids
         query = self._gen_query()
@@ -351,7 +351,7 @@ class TCIMClient(object):
     :param delete_type: 删除类型：Delete_Type_Both：双向删除， Delete_Type_Single:单向删除
     :return:
     """
-    rest_url = "{}/v4/sns/friend_delete".format(self.tecent_url)
+    rest_url = "{}/sns/friend_delete".format(self.tecent_url)
     data = {}
     try:
         data["From_Account"] = from_account
@@ -371,7 +371,7 @@ class TCIMClient(object):
     :return:
     """
 
-    rest_url = "{}/v4/sns/friend_update".format(self.tecent_url)
+    rest_url = "{}/sns/friend_update".format(self.tecent_url)
     data = {}
     try:
         updateItems = []
@@ -395,7 +395,7 @@ class TCIMClient(object):
     :return:
     """
 
-    rest_url = "{}/v4/sns/friend_get".format(self.tecent_url)
+    rest_url = "{}/sns/friend_get".format(self.tecent_url)
     data = {}
     try:
         data["From_Account"] = from_account
@@ -417,7 +417,7 @@ class TCIMClient(object):
     :return:
     """
 
-    rest_url = "{}/v4/sns/group_add".format(self.tecent_url)
+    rest_url = "{}/sns/group_add".format(self.tecent_url)
     data = {}
     try:
         data["From_Account"] = from_account
@@ -440,7 +440,7 @@ class TCIMClient(object):
     """
 
     try:
-        rest_url = "{}/v4/sns/group_delete".format(self.tecent_url)
+        rest_url = "{}/sns/group_delete".format(self.tecent_url)
         data = {}
         data["From_Account"] = from_account
         data["GroupName"] = groups
@@ -462,7 +462,7 @@ class TCIMClient(object):
     :return:
     """
 
-    rest_url = "{}/v4/sns/group_get".format(self.tecent_url)
+    rest_url = "{}/sns/group_get".format(self.tecent_url)
     data = {}
     try:
         data["From_Account"] = from_account
@@ -477,4 +477,6 @@ class TCIMClient(object):
 
 
 if __name__ == "__main__":
-  pass
+    pass
+
+
