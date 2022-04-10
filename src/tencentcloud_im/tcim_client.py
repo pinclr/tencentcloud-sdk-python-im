@@ -18,7 +18,6 @@ import logging
 import random
 from datetime import datetime
 from typing import List
-
 import requests
 
 from tencentcloud_im.user_sig import TLSSigAPIv2
@@ -46,16 +45,17 @@ logger = MyLogger.get_logger(__name__)
 
 class FriendObj(object):
   """
-  好友结构体
+  Friend Object
+  Attributes
+    to_account: target user id
+    add_source: user from where
+    group_name
+    remark
+
   """
 
-  def __init__(
-    self,
-    to_account,
-    add_source,
-    remark="",
-    group_name="",
-  ):
+  def __init__(self, to_account,add_source, remark="", group_name=""):
+
     """
     :param to_account: 目标用户 必填
     :param remark:     备注
@@ -70,29 +70,26 @@ class FriendObj(object):
 
 class SnsItemObj(object):
   """
-  tag:
-  Tag_SNS_IM_Group:Array 好友分组 value: [] 分组信息
-  Tag_SNS_IM_Remark：好友备注：    value:str 好友备注
-  Tag_SNS_IM_AddSource：好友来源   value:str
-  Tag_SNS_IM_AddWording：好友附言  value:str
-  Tag_SNS_IM_AddTime：好友时间戳   value:int
+  SnsItemObj
+  Attributes
+    tag:
+        Group:Array  user group  value: [] 分组信息
+        Remark：user remark：    value:str 好友备注
+        AddSource：user source   value:str
+        AddWording：好友附言  value:str
+        AddTime：user time stamp  value:int
   """
 
   def __init__(self, tag: str, value: str):
-    """
 
-    :param tag: 需要更新的字段：
-                - Remark
-                - Group
-    :param value:
-    """
     self.Tag = "Tag_SNS_IM_{}".format(tag)
     self.Value = value
 
 
 class UpdateFriendObj(object):
   """
-  更新好友结构体
+
+  update user object
   """
 
   def __init__(self, to_account, sns_items: List[SnsItemObj]):
@@ -136,16 +133,27 @@ class UpdateFriendObj(object):
 #   return result
 
 
-class TCIMClient(object):
 
+class TCIMClient(object):
+  """
+  Tecent Im Rest API Client
+
+  Attributes
+    sdk_id: im sdk id
+    key:IM im sdk secret key
+    admin: im sdk admin user id
+    tencent_url: tencent im rest url
+    expire_time: user sig expire time(seconds)
+
+
+  """
   def __init__(self, sdk_id, key, admin, tencent_url=TCIM_API_BASE, expire_time=60 * 5):
     """
-
-    :param sdk_id: sdk_id
-    :param key:    key
-    :param admin:  user name of the admin
-    :param tencent_url:  Tencent Cloud IM API URL
-    :param expire_time: 
+    :param sdk_id: IM SDK ID
+    :param key:    IM SDK SECRET KEY
+    :param admin:  ADMIN
+    :param tencent_url: tencent rest url
+    :param expire_time:   expire time
     """
     self.sdk_id = sdk_id
     self.key = key
@@ -157,10 +165,10 @@ class TCIMClient(object):
 
   def get_user_sig(self, user_id: str, expire_time: int = 180 * 86400):
     """
-    生成user_sig
-    :param user_id: 用户user_id,
-    :param expire_time: 过期时间：单位为秒
-    :return:
+    generate user sig
+    :param user_id: user id
+    :param expire_time: expire time
+    :return: user_sig
     """
     api = TLSSigAPIv2(self.sdk_id, self.key)
     sig = api.genUserSig(user_id, expire_time)
@@ -168,13 +176,8 @@ class TCIMClient(object):
 
   def _gen_query(self):
     """
-    生成后端操作的rest url
-    :param sdk_id:
-    :param admin:
-    :param user_sig:
-    :return:
+    generate rest url
     """
-
     current_time = datetime.now()
 
     # 计算时间：如果大于登陆5分钟，则重新生成user_sig
@@ -192,11 +195,18 @@ class TCIMClient(object):
 
   def add_single_user(self, user_id: str, nick_name: str, face_url: str):
     """
-    创建用户
+    add user to im server
+    https://cloud.tencent.com/document/product/269/1608
     :param user_id
     :param nick_name:
     :param face_url:
-    :return:
+    :return: response
+    response.content:
+    {
+        "ActionStatus":"OK",  # if "OK" means success else "Fail" means fail
+        "ErrorInfo":"",
+        "ErrorCode":0
+    }
     """
     rest_url = "{}/im_open_login_svc/account_import".format(self.tecent_url)
 
@@ -208,18 +218,28 @@ class TCIMClient(object):
       query = self._gen_query()
       return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-      logger.error("add user failed:{}".format(e))
-      return None
+        logger.error("add user failed:{}".format(e))
+        return None
+
 
   def batch_add_users(self, user_ids: List[str]):
-    """
-    批量增加用户:单词最多100个
-    :param user_ids: user_ids 列表["a","b","c"]
-    :return:
-    """
-    if len(user_ids) == 0:
-      return
 
+    """
+    batch add users to im server
+    https://cloud.tencent.com/document/product/269/4919
+    :param user_ids:  list of user_ids eg: ["user0","user1"]
+    :return:response
+    response.content
+    {
+        "ActionStatus": "OK", #if "OK" means success else "Fail" means fail
+        "ErrorCode": 0,
+        "ErrorInfo": "",
+        "FailAccounts": [   // List of accounts that failed to be imported to im server
+            "test3",
+            "test4"
+        ]
+    }
+    """
     try:
         rest_url = "{}/im_open_login_svc/multiaccount_import".format(self.tecent_url)
         data = {}
@@ -227,14 +247,35 @@ class TCIMClient(object):
         query = self._gen_query()
         return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-      logger.error("batch add user failed:{}".format(e))
-      return None
+        logger.error("batch add user failed:{}".format(e))
+        return None
+
 
   def del_user(self, user_ids: List[str]):
+
     """
-    删除用户
-    :param user_ids: user_ids 列表["a","b","c"]
-    :return:
+    delete user in im server
+    https://cloud.tencent.com/document/product/269/36443
+    :param user_ids: list of user_ids eg: ["user0","user1"]
+    :return:response
+    response.content
+    {
+        "ActionStatus": "OK",
+        "ErrorCode": 0,
+        "ErrorInfo": "",
+        "ResultItem": [
+            {
+                "ResultCode": 0,   # if "0" means success  else  means fail
+                "ResultInfo": "",  # error info
+                "UserID": "UserID_1"
+            },
+            {
+                "ResultCode": 70107,
+                "ResultInfo": "Err_TLS_PT_Open_Login_Account_Not_Exist",
+                "UserID": "UserID_2"
+            }
+        ]
+    }
     """
     rest_url = "{}/im_open_login_svc/account_delete".format(self.tecent_url)
     data = {}
@@ -249,14 +290,38 @@ class TCIMClient(object):
       query = self._gen_query()
       return requests.post(rest_url, params=query, data=json.dumps(data))
     except Exception as e:
-      logger.error("delete user failed:{}".format(e))
-      return None
+
+        logger.error("delete user failed:{}".format(e))
+        return None
+
 
   def search_user(self, user_ids: List[str]):
+
     """
-    查询账户
-    :param user_ids: user_ids 列表["a","b","c"]
-    :return:
+    search user
+    https://cloud.tencent.com/document/product/269/38417
+    :param user_ids: list of user_ids eg: ["user0","user1"]
+    :return: response
+    response.content
+    {
+        "ActionStatus": "OK",
+        "ErrorCode": 0,
+        "ErrorInfo": "",
+        "ResultItem": [
+            {
+                "UserID": "UserID_1",
+                "ResultCode": 0,     # if "0" means success  else  means fail
+                "ResultInfo": "",
+                "AccountStatus": "Imported"  # "Import" means this user_id is in im server
+            },
+            {
+                "UserID": "UserID_2",
+                "ResultCode": 0,
+                "ResultInfo": "",
+                "AccountStatus": "NotImported"  # "NotImported" means this user_id is not in im server
+            }
+        ]
+    }
     """
     rest_url = "{}/im_open_login_svc/account_check".format(self.tecent_url)
     data = {}
@@ -277,9 +342,17 @@ class TCIMClient(object):
 
   def abolition_user_sig(self, user_id):
     """
-    废除某个账号的user_sig,可以让该账号直接登陆失败
+    login status of invalid account
+    https://cloud.tencent.com/document/product/269/3853
     :param user_id:
-    :return:
+    :return: response
+    response.content
+    {
+        "ActionStatus":"OK",
+        "ErrorInfo":"",
+        "ErrorCode":0
+    }
+
     """
     rest_url = "{}/im_open_login_svc/kick".format(self.tecent_url)
     data = {}
@@ -293,9 +366,43 @@ class TCIMClient(object):
 
   def check_user_online(self, user_ids: List[str]):
     """
-    检查账户是否在线状态
-    :param user_ids:user_ids 列表["a","b","c"]
-    :return:
+    check user status
+    https://cloud.tencent.com/document/product/269/2566
+    :param user_ids:list of user_ids eg: ["user0","user1"]
+    :return:response
+    response.content
+    {
+        "ActionStatus": "OK",
+        "ErrorInfo": "",
+        "ErrorCode": 0,
+        "QueryResult": [
+            {
+                "To_Account": "id1",
+                "Status": "Online",
+                "Detail": [
+                    {
+                        "Platform": "iPhone",
+                        "Status": "PushOnline"
+                    },
+                    {
+                        "Platform": "Web",
+                        "Status": "Online"
+                    }
+                ]
+            },
+            {
+                "To_Account": "id2",
+                "Status": "Offline",
+            }
+        ],
+        "ErrorList": [
+            {
+                "To_Account": "id4",
+                "ErrorCode": 70107
+            }
+        ]
+        }
+
     """
     rest_url = "{}/openim/query_online_status".format(self.tecent_url)
     data = {}
@@ -310,10 +417,38 @@ class TCIMClient(object):
 
   def add_friend(self, from_account: str, friends: List[FriendObj]):
     """
-    添加好友
+    add friend
+    https://cloud.tencent.com/document/product/269/1643
     :param from_account: 需要添加好友的账户
-    :param friends: 需要添加哪些好友
-    :return:
+    :param friends: need to be added  [FriendObj]
+    :return: response
+    response.content
+    {
+        "ResultItem":
+        [
+            {
+                "To_Account":"id1",
+                "ResultCode":0,
+                "ResultInfo":""
+            },
+            {
+                "To_Account":"id2",
+                "ResultCode":30006,
+                "ResultInfo":"Err_SNS_FriendAdd_Unpack_Profile_Data_Fail"
+            },
+            {
+                "To_Account":"id3",
+                "ResultCode":30002,
+                "ResultInfo":"Err_SNS_FriendAdd_SdkAppId_Illegal"
+            }
+        ],
+        "Fail_Account":["id2","id3"],
+        "ActionStatus":"OK",
+        "ErrorCode":0,
+        "ErrorInfo":"",
+        "ErrorDisplay":""
+    }
+
     """
     rest_url = "{}/sns/friend_add".format(self.tecent_url)
     data = {}
@@ -335,11 +470,38 @@ class TCIMClient(object):
     self, from_account: str, to_accounts: List[str], delete_type="Delete_Type_Both"
   ):
     """
-    删除好友
-    :param from_account: 需要删除好友的账户
-    :param to_accounts:需要删除好友
-    :param delete_type: 删除类型：Delete_Type_Both：双向删除， Delete_Type_Single:单向删除
-    :return:
+    delete friends
+    https://cloud.tencent.com/document/product/269/1644
+    :param from_account
+    :param to_accounts: list of user ids
+    :param delete_type: Delete_Type_Both or Delete_Type_Single
+    :return: response
+    response.content
+    {
+        "ResultItem":
+        [
+            {
+                "To_Account":"id1",
+                "ResultCode":0,
+                "ResultInfo":""
+            },
+            {
+                "To_Account":"id2",
+                "ResultCode":0,
+                "ResultInfo":""
+            },
+            {
+                "To_Account":"id3",
+                "ResultCode":0,
+                "ResultInfo":""
+            }
+        ],
+        "ActionStatus":"OK",
+        "ErrorCode":0,
+        "ErrorInfo":"0",
+        "ErrorDisplay":""
+    }
+
     """
     rest_url = "{}/sns/friend_delete".format(self.tecent_url)
     data = {}
@@ -355,9 +517,37 @@ class TCIMClient(object):
 
   def update_friend(self, from_account: str, update_objs: List[UpdateFriendObj]):
     """
-    更新好友
+    update friend  relational link data
+    https://cloud.tencent.com/document/product/269/12525
     :param from_account:
-    :return:
+    :param update_objs: list[UpdateFriendObj]
+    :return: response
+    response.content
+    {
+        "ResultItem":
+        [
+            {
+                "To_Account":"id1",
+                "ResultCode":0,
+                "ResultInfo":""
+            },
+            {
+                "To_Account":"id2",
+                "ResultCode":30011,
+                "ResultInfo":"Err_SNS_FriendUpdate_Group_Num_Exceed_Threshold"
+            },
+            {
+                "To_Account":"id3",
+                "ResultCode":30002,
+                "ResultInfo":"Err_SNS_FriendImport_SdkAppId_Illegal"
+            }
+        ],
+        "Fail_Account":["id2","id3"],
+        "ActionStatus":"OK",
+        "ErrorCode":0,
+        "ErrorInfo":"",
+        "ErrorDisplay":""
+    }
     """
 
     rest_url = "{}/sns/friend_update".format(self.tecent_url)
@@ -376,10 +566,67 @@ class TCIMClient(object):
 
   def get_friends(self, from_account: str, start_index: int = 0):
     """
-    拉取全部好友
-    :param from_account:指定要拉取好友数据的用户的 UserID
-    :param:start_index:分页的起始位置,后面该参数继承Response中的next_start_index
-    :return:
+    get friends
+    https://cloud.tencent.com/document/product/269/1647
+    :param from_account
+    :param:start_index: start index from next_start_index in response
+    :return:response
+    response.content
+        {
+        "UserDataItem": [
+            {
+                "To_Account": "id1",
+                "ValueItem": [
+                    {
+                        "Tag": "Tag_SNS_IM_AddSource",
+                        "Value": "AddSource_Type_Android"
+                    },
+                    {
+                        "Tag": "Tag_SNS_IM_Remark",
+                        "Value": "Remark1"
+                    },
+                    {
+                        "Tag": "Tag_SNS_IM_Group",
+                        "Value":["Group1","Group2"]
+                    },
+                    {
+                        "Tag": "Tag_SNS_IM_AddTime",
+                        "Value": 1563867420
+                    },
+                    {
+                        "Tag": "Tag_SNS_Custom_Test",
+                        "Value": "CustomData1"
+                    }
+                ]
+            },
+            {
+                "To_Account": "id2",
+                "ValueItem": [
+                    {
+                        "Tag": "Tag_SNS_IM_AddSource",
+                        "Value": "AddSource_Type_IOS"
+                    },
+                    {
+                        "Tag": "Tag_SNS_IM_Group",
+                        "Value":["Group1"]
+                    },
+                    {
+                        "Tag": "Tag_SNS_IM_AddTime",
+                        "Value": 1563867425
+                    }
+                ]
+            }
+        ],
+        "StandardSequence": 88,
+        "CustomSequence": 46,
+        "FriendNum": 20,
+        "CompleteFlag": 1,
+        "NextStartIndex": 0,
+        "ActionStatus": "OK",
+        "ErrorCode": 0,
+        "ErrorInfo": "",
+        "ErrorDisplay": ""
+    }
     """
 
     rest_url = "{}/sns/friend_get".format(self.tecent_url)
@@ -395,11 +642,40 @@ class TCIMClient(object):
 
   def add_group(self, from_account: str, groups: List[str], to_accounts: List[str]):
     """
-    添加分组
-    :param from_account  :需要为该 UserID 添加新分组
-    :param groups        ：新增分组列表
-    :param to_accounts   ：需要加入新增分组的好友的 UserID 列表
-    :return:
+    add group
+    https://cloud.tencent.com/document/product/269/10107
+    :param from_account  :
+    :param groups        ：list of groups
+    :param to_accounts   ：add user id to groups
+    :return:response
+    response.content
+    {
+        "ResultItem":
+        [
+            {
+                "To_Account": "id1",
+                "ResultCode": 0,
+                "ResultInfo": ""
+            },
+            {
+                "To_Account": "id2",
+                "ResultCode": 32216,
+                "ResultInfo": "Err_SNS_GroupAdd_ToTinyId_Not_Friend"
+            },
+            {
+                "To_Account": "id3",
+                "ResultCode": 30002,
+                "ResultInfo": "ERR_SDKAPPID_ILLEGAL"
+            }
+        ],
+        "Fail_Account":["id2","id3"],
+        "CurrentSequence": 3,
+        "ActionStatus": "OK",
+        "ErrorCode": 0,
+        "ErrorInfo": "",
+        "ErrorDisplay": ""
+    }
+
     """
 
     rest_url = "{}/sns/group_add".format(self.tecent_url)
@@ -416,12 +692,20 @@ class TCIMClient(object):
 
   def delete_group(self, from_account: str, groups: List[str]):
     """
-    删除分组
-    :param: from_account:需要删除该 UserID 的分组
-    :param  groups: 要删除的分组列表
-    :return:
+    delete group
+    https://cloud.tencent.com/document/product/269/10108
+    :param: from_account:
+    :param  groups: list of group names
+    :return:response
+    response.content
+    {
+        "CurrentSequence": 4,
+        "ActionStatus":"OK",
+        "ErrorCode":0,
+        "ErrorInfo":"0",
+        "ErrorDisplay":""
+    }
     """
-
     try:
         rest_url = "{}/sns/group_delete".format(self.tecent_url)
         data = {}
@@ -441,13 +725,29 @@ class TCIMClient(object):
     need_friend_flag: str = "Need_Friend_Type_Yes"
   ):
     """
-    拉取分组
-    :param from_account:指定要拉取分组的用户的 UserID
-    :param: groups: 需要获取的分组，默认为空则是全部获取
-    :param: need_friend_flag: 获取分组好友
-    :return:
-    """
+    get grounds
+    https://cloud.tencent.com/document/product/269/54763
+    :param from_account:
+    :param: groups: list of group names
+    :param: need_friend_flag: "Need_Friend_Type_Yes"
+    :return: response
+    response.content
+    {
+        "ResultItem": [
+            {
+                "GroupName": "group1",
+                "FriendNumber": 1,
+                "To_Account": ["friend1"]
+            }
+        ],
+        "CurrentSequence": 2,
+        "ActionStatus": "OK",
+        "ErrorCode": 0,
+        "ErrorInfo": "",
+        "ErrorDisplay": ""
+    }
 
+    """
     rest_url = "{}/sns/group_get".format(self.tecent_url)
     data = {}
     try:
@@ -460,7 +760,6 @@ class TCIMClient(object):
     except Exception as e:
       logger.error("get group failed:{}".format(e))
       return None
-
 
 if __name__ == "__main__":
     pass
