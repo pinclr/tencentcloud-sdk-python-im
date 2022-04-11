@@ -239,7 +239,7 @@ class TCIMClient(object):
         """
 
         api = TLSSigAPIv2(self.sdk_id, self.key)
-        sig = api.genUserSig(user_id, expire_time)
+        sig = api.gen_sig(user_id, expire_time)
         return sig
 
 
@@ -868,17 +868,204 @@ class TCIMClient(object):
         query = self._gen_query()
         return requests.post(rest_url, params=query, data=json.dumps(batchMessageObj.__dict__))
       except Exception as e:
-        logger.error("send message faield:{}".format(e))
+        logger.error("batch send message faield:{}".format(e))
         return None
+
+    def import_message_to_im(self,messgeObj:MessageObj,timestamp:int,sync_from_old:int=1):
+        """
+        import history message to im server
+        https://cloud.tencent.com/document/product/269/2568
+        :return: response
+        response.content
+        {
+            "ActionStatus" : "OK",
+            "ErrorInfo" : "",
+            "ErrorCode" : 0
+        }
+
+        """
+        rest_url = "{}/openim/importmsg".format(self.tecent_url)
+        data = messgeObj.__dict__
+        data["MsgTimeStamp"] = timestamp
+        data["SyncFromOldSystem"] = sync_from_old
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("import message failed:{}".format(e))
+            return None
+
+    def get_message_list(
+            self,
+            from_account:str,
+            to_account:str,
+            max_count:int,
+            from_timestamp:int,
+            to_timestamp:int,
+            last_message_key:str=""):
+        """
+        get message
+        https://cloud.tencent.com/document/product/269/42794
+        :param from_account:
+        :param to_account:
+        :param max_count: number of messages
+        :param from_timestamp: from timestamp
+        :param to_timestamp:  from timestamp
+        :param last_message_key: if you want get next message you should transfer it(from LastMsgKey)
+        :return: response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "Complete": 1,
+            "MsgCnt": 1,
+            "LastMsgTime": 1584669680,
+            "LastMsgKey": "549396494_2578554_1584669680",
+            "MsgList": [
+                {
+                    "From_Account": "user1",
+                    "To_Account": "user2",
+                    "MsgSeq": 549396494,
+                    "MsgRandom": 2578554,
+                    "MsgTimeStamp": 1584669680,
+                    "MsgFlagBits": 0,
+                    "MsgKey": "549396494_2578554_1584669680",
+                    "MsgBody": [
+                        {
+                            "MsgType": "TIMTextElem",
+                            "MsgContent": {
+                                "Text": "1"
+                            }
+                        }
+                    ],
+                    "CloudCustomData": "your cloud custom data"
+                }
+            ]
+        }
+        """
+        rest_url = "{}/openim/admin_getroammsg".format(self.tecent_url)
+        data = {}
+        data["From_Account"] = from_account
+        data["To_Account"] = to_account
+        data["MaxCnt"] = max_count
+        data["MinTime"] = from_timestamp
+        data["MaxTime"] = to_timestamp
+        if last_message_key != "":
+            data["LastMsgKey"] = last_message_key
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get message failed:{}".format(e))
+            return None
+
+    def draw_message(
+            self,
+            from_account:str,
+            to_account:str,
+            msg_key:str):
+        """
+        draw message
+        https://cloud.tencent.com/document/product/269/38980
+
+        :param from_account:
+        :param to_account:
+        :param msg_key:
+        :return: resposne
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/openim/admin_msgwithdraw".format(self.tecent_url)
+        data = {}
+        data["From_Account"] = from_account
+        data["To_Account"] = to_account
+        data["MsgKey"] = msg_key
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("draw message failed:{}".format(e))
+            return None
+
+    def set_user_message_read(self,
+                              from_account:str,
+                              to_account:str,
+                              read_timestamp:int=0):
+        """
+        set user message read
+        https://cloud.tencent.com/document/product/269/50349
+        :param from_account: user id for message read
+        :param to_account:
+        :param read_timestamp: read message before read_timestamp if message_read_timestamp we will set current time
+        :return: response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/openim/admin_set_msg_read".format(self.tecent_url)
+        data = {}
+        data["Report_Account"] = from_account
+        data["Peer_Account"] = to_account
+        if read_timestamp != 0:
+            data["MsgReadTime"] = read_timestamp
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("set  message read failed:{}".format(e))
+            return None
+
+    def get_unread_num(self,from_account:str,to_accounts:List[str]=[]):
+        """
+        get unread message num
+        https://cloud.tencent.com/document/product/269/56043
+        :param from_account:
+        :param to_accounts:
+        :return: response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "C2CUnreadMsgNumList": [
+                {
+                    "Peer_Account": "dramon2",
+                    "C2CUnreadMsgNum": 12
+                },
+                {
+                    "Peer_Account": "teacher",
+                    "C2CUnreadMsgNum": 12
+                }
+            ]
+        }
+        """
+        rest_url = "{}/openim/get_c2c_unread_msg_num".format(self.tecent_url)
+        data = {}
+        data["To_Account"] = from_account
+        if len(to_accounts) >0:
+            data["Peer_Account"] = to_accounts
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("set  message read failed:{}".format(e))
+            return None
+
+
+
 
 
 if __name__ == "__main__":
-   pass
-
-
-
-
-
+    pass
 
 
 
