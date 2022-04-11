@@ -19,8 +19,7 @@ import random
 from datetime import datetime
 from typing import List
 import requests
-
-from tencentcloud_im.user_sig import TLSSigAPIv2
+from TLSSigAPIv2 import TLSSigAPIv2
 
 TCIM_API_BASE = "https://console.tim.qq.com/v4"
 
@@ -45,8 +44,8 @@ logger = MyLogger.get_logger(__name__)
 
 class MessageText(object):
     """
-  text message
-  """
+    text message
+    """
 
     def __init__(self, message):
         self.MsgType = "TIMTextElem"
@@ -57,8 +56,8 @@ class MessageText(object):
 
 class MessageFile(object):
     """
-  file message
-  """
+    file message
+    """
 
     def __init__(self, file_url: str, file_size: int, file_name: str):
         self.MsgType = "TIMFileElem"
@@ -115,22 +114,22 @@ class BatchMessageObj(object):
 
 class FriendObj(object):
     """
-  Friend Object
-  Attributes
-    to_account: target user id
-    add_source: user from where
-    group_name
-    remark
+    Friend Object
+    Attributes
+      to_account: target user id
+      add_source: user from where
+      group_name
+      remark
 
-  """
+    """
 
     def __init__(self, to_account, add_source, remark="", group_name=""):
         """
-    :param to_account: 目标用户 必填
-    :param remark:     备注
-    :param add_source  好友来源：web,android ios
-    :param group_name: 用户分组
-    """
+        :param to_account: 目标用户 必填
+        :param remark:     备注
+        :param add_source  好友来源：web,android ios
+        :param group_name: 用户分组
+        """
         self.To_Account = to_account
         self.Remark = remark
         self.GroupName = group_name
@@ -139,15 +138,15 @@ class FriendObj(object):
 
 class SnsItemObj(object):
     """
-  SnsItemObj
-  Attributes
-    tag:
-        Group:Array  user group  value: [] 分组信息
-        Remark：user remark：    value:str 好友备注
-        AddSource：user source   value:str
-        AddWording：好友附言  value:str
-        AddTime：user time stamp  value:int
-  """
+    SnsItemObj
+    Attributes
+      tag:
+          Group:Array  user group  value: [] 分组信息
+          Remark：user remark：    value:str 好友备注
+          AddSource：user source   value:str
+          AddWording：好友附言  value:str
+          AddTime：user time stamp  value:int
+    """
 
     def __init__(self, tag: str, value: str):
         self.Tag = "Tag_SNS_IM_{}".format(tag)
@@ -157,8 +156,8 @@ class SnsItemObj(object):
 class UpdateFriendObj(object):
     """
 
-  update user object
-  """
+    update user object
+    """
 
     def __init__(self, to_account, sns_items: List[SnsItemObj]):
         self.To_Account = to_account
@@ -203,26 +202,26 @@ class UpdateFriendObj(object):
 
 class TCIMClient(object):
     """
-  Tecent Im Rest API Client
+    Tecent Im Rest API Client
 
-  Attributes
-    sdk_id: im sdk id
-    key:IM im sdk secret key
-    admin: im sdk admin user id
-    tencent_url: tencent im rest url
-    expire_time: user sig expire time(seconds)
+    Attributes
+      sdk_id: im sdk id
+      key:IM im sdk secret key
+      admin: im sdk admin user id
+      tencent_url: tencent im rest url
+      expire_time: user sig expire time(seconds)
 
 
-  """
+    """
 
     def __init__(self, sdk_id, key, admin, tencent_url=TCIM_API_BASE, expire_time=60 * 5):
         """
-    :param sdk_id: IM SDK ID
-    :param key:    IM SDK SECRET KEY
-    :param admin:  ADMIN
-    :param tencent_url: tencent rest url
-    :param expire_time:   expire time
-    """
+        :param sdk_id: IM SDK ID
+        :param key:    IM SDK SECRET KEY
+        :param admin:  ADMIN
+        :param tencent_url: tencent rest url
+        :param expire_time:   expire time
+        """
         self.sdk_id = sdk_id
         self.key = key
         self.admin = admin
@@ -233,14 +232,16 @@ class TCIMClient(object):
 
     def get_user_sig(self, user_id: str, expire_time: int = 180 * 86400):
         """
-    generate user sig
-    :param user_id: user id
-    :param expire_time: expire time
-    :return: user_sig
-    """
+        generate user sig
+        :param user_id: user id
+        :param expire_time: expire time
+        :return: user_sig
+        """
+
         api = TLSSigAPIv2(self.sdk_id, self.key)
         sig = api.genUserSig(user_id, expire_time)
         return sig
+
 
     def _gen_query(self):
         """
@@ -263,19 +264,19 @@ class TCIMClient(object):
 
     def add_single_user(self, user_id: str, nick_name: str, face_url: str):
         """
-    add user to im server
-    https://cloud.tencent.com/document/product/269/1608
-    :param user_id
-    :param nick_name:
-    :param face_url:
-    :return: response
-    response.content:
-    {
-        "ActionStatus":"OK",  # if "OK" means success else "Fail" means fail
-        "ErrorInfo":"",
-        "ErrorCode":0
-    }
-    """
+        add user to im server
+        https://cloud.tencent.com/document/product/269/1608
+        :param user_id
+        :param nick_name:
+        :param face_url:
+        :return: response
+        response.content:
+        {
+            "ActionStatus":"OK",  # if "OK" means success else "Fail" means fail
+            "ErrorInfo":"",
+            "ErrorCode":0
+        }
+        """
         rest_url = "{}/im_open_login_svc/account_import".format(self.tecent_url)
 
         data = {}
@@ -292,21 +293,21 @@ class TCIMClient(object):
     def batch_add_users(self, user_ids: List[str]):
 
         """
-    batch add users to im server
-    https://cloud.tencent.com/document/product/269/4919
-    :param user_ids:  list of user_ids eg: ["user0","user1"]
-    :return:response
-    response.content
-    {
-        "ActionStatus": "OK", #if "OK" means success else "Fail" means fail
-        "ErrorCode": 0,
-        "ErrorInfo": "",
-        "FailAccounts": [   // List of accounts that failed to be imported to im server
-            "test3",
-            "test4"
-        ]
-    }
-    """
+        batch add users to im server
+        https://cloud.tencent.com/document/product/269/4919
+        :param user_ids:  list of user_ids eg: ["user0","user1"]
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK", #if "OK" means success else "Fail" means fail
+            "ErrorCode": 0,
+            "ErrorInfo": "",
+            "FailAccounts": [   // List of accounts that failed to be imported to im server
+                "test3",
+                "test4"
+            ]
+        }
+        """
         try:
             rest_url = "{}/im_open_login_svc/multiaccount_import".format(self.tecent_url)
             data = {}
@@ -320,29 +321,29 @@ class TCIMClient(object):
     def del_user(self, user_ids: List[str]):
 
         """
-    delete user in im server
-    https://cloud.tencent.com/document/product/269/36443
-    :param user_ids: list of user_ids eg: ["user0","user1"]
-    :return:response
-    response.content
-    {
-        "ActionStatus": "OK",
-        "ErrorCode": 0,
-        "ErrorInfo": "",
-        "ResultItem": [
-            {
-                "ResultCode": 0,   # if "0" means success  else  means fail
-                "ResultInfo": "",  # error info
-                "UserID": "UserID_1"
-            },
-            {
-                "ResultCode": 70107,
-                "ResultInfo": "Err_TLS_PT_Open_Login_Account_Not_Exist",
-                "UserID": "UserID_2"
-            }
-        ]
-    }
-    """
+          delete user in im server
+          https://cloud.tencent.com/document/product/269/36443
+          :param user_ids: list of user_ids eg: ["user0","user1"]
+          :return:response
+          response.content
+          {
+              "ActionStatus": "OK",
+              "ErrorCode": 0,
+              "ErrorInfo": "",
+              "ResultItem": [
+                  {
+                      "ResultCode": 0,   # if "0" means success  else  means fail
+                      "ResultInfo": "",  # error info
+                      "UserID": "UserID_1"
+                  },
+                  {
+                      "ResultCode": 70107,
+                      "ResultInfo": "Err_TLS_PT_Open_Login_Account_Not_Exist",
+                      "UserID": "UserID_2"
+                  }
+              ]
+          }
+        """
         rest_url = "{}/im_open_login_svc/account_delete".format(self.tecent_url)
         data = {}
         DeleteItem = []
@@ -363,31 +364,31 @@ class TCIMClient(object):
     def search_user(self, user_ids: List[str]):
 
         """
-    search user
-    https://cloud.tencent.com/document/product/269/38417
-    :param user_ids: list of user_ids eg: ["user0","user1"]
-    :return: response
-    response.content
-    {
-        "ActionStatus": "OK",
-        "ErrorCode": 0,
-        "ErrorInfo": "",
-        "ResultItem": [
-            {
-                "UserID": "UserID_1",
-                "ResultCode": 0,     # if "0" means success  else  means fail
-                "ResultInfo": "",
-                "AccountStatus": "Imported"  # "Import" means this user_id is in im server
-            },
-            {
-                "UserID": "UserID_2",
-                "ResultCode": 0,
-                "ResultInfo": "",
-                "AccountStatus": "NotImported"  # "NotImported" means this user_id is not in im server
-            }
-        ]
-    }
-    """
+          search user
+          https://cloud.tencent.com/document/product/269/38417
+          :param user_ids: list of user_ids eg: ["user0","user1"]
+          :return: response
+          response.content
+          {
+              "ActionStatus": "OK",
+              "ErrorCode": 0,
+              "ErrorInfo": "",
+              "ResultItem": [
+                  {
+                      "UserID": "UserID_1",
+                      "ResultCode": 0,     # if "0" means success  else  means fail
+                      "ResultInfo": "",
+                      "AccountStatus": "Imported"  # "Import" means this user_id is in im server
+                  },
+                  {
+                      "UserID": "UserID_2",
+                      "ResultCode": 0,
+                      "ResultInfo": "",
+                      "AccountStatus": "NotImported"  # "NotImported" means this user_id is not in im server
+                  }
+              ]
+          }
+        """
         rest_url = "{}/im_open_login_svc/account_check".format(self.tecent_url)
         data = {}
         CheckItem = []
@@ -407,18 +408,18 @@ class TCIMClient(object):
 
     def abolition_user_sig(self, user_id):
         """
-    login status of invalid account
-    https://cloud.tencent.com/document/product/269/3853
-    :param user_id:
-    :return: response
-    response.content
-    {
-        "ActionStatus":"OK",
-        "ErrorInfo":"",
-        "ErrorCode":0
-    }
+        login status of invalid account
+        https://cloud.tencent.com/document/product/269/3853
+        :param user_id:
+        :return: response
+        response.content
+        {
+            "ActionStatus":"OK",
+            "ErrorInfo":"",
+            "ErrorCode":0
+        }
 
-    """
+        """
         rest_url = "{}/im_open_login_svc/kick".format(self.tecent_url)
         data = {}
         data["UserID"] = user_id
@@ -431,44 +432,44 @@ class TCIMClient(object):
 
     def check_user_online(self, user_ids: List[str]):
         """
-    check user status
-    https://cloud.tencent.com/document/product/269/2566
-    :param user_ids:list of user_ids eg: ["user0","user1"]
-    :return:response
-    response.content
-    {
-        "ActionStatus": "OK",
-        "ErrorInfo": "",
-        "ErrorCode": 0,
-        "QueryResult": [
-            {
-                "To_Account": "id1",
-                "Status": "Online",
-                "Detail": [
-                    {
-                        "Platform": "iPhone",
-                        "Status": "PushOnline"
-                    },
-                    {
-                        "Platform": "Web",
-                        "Status": "Online"
-                    }
-                ]
-            },
-            {
-                "To_Account": "id2",
-                "Status": "Offline",
+        check user status
+        https://cloud.tencent.com/document/product/269/2566
+        :param user_ids:list of user_ids eg: ["user0","user1"]
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "QueryResult": [
+                {
+                    "To_Account": "id1",
+                    "Status": "Online",
+                    "Detail": [
+                        {
+                            "Platform": "iPhone",
+                            "Status": "PushOnline"
+                        },
+                        {
+                            "Platform": "Web",
+                            "Status": "Online"
+                        }
+                    ]
+                },
+                {
+                    "To_Account": "id2",
+                    "Status": "Offline",
+                }
+            ],
+            "ErrorList": [
+                {
+                    "To_Account": "id4",
+                    "ErrorCode": 70107
+                }
+            ]
             }
-        ],
-        "ErrorList": [
-            {
-                "To_Account": "id4",
-                "ErrorCode": 70107
-            }
-        ]
-        }
 
-    """
+        """
         rest_url = "{}/openim/query_online_status".format(self.tecent_url)
         data = {}
         try:
@@ -482,39 +483,39 @@ class TCIMClient(object):
 
     def add_friend(self, from_account: str, friends: List[FriendObj]):
         """
-    add friend
-    https://cloud.tencent.com/document/product/269/1643
-    :param from_account: 需要添加好友的账户
-    :param friends: need to be added  [FriendObj]
-    :return: response
-    response.content
-    {
-        "ResultItem":
-        [
-            {
-                "To_Account":"id1",
-                "ResultCode":0,
-                "ResultInfo":""
-            },
-            {
-                "To_Account":"id2",
-                "ResultCode":30006,
-                "ResultInfo":"Err_SNS_FriendAdd_Unpack_Profile_Data_Fail"
-            },
-            {
-                "To_Account":"id3",
-                "ResultCode":30002,
-                "ResultInfo":"Err_SNS_FriendAdd_SdkAppId_Illegal"
-            }
-        ],
-        "Fail_Account":["id2","id3"],
-        "ActionStatus":"OK",
-        "ErrorCode":0,
-        "ErrorInfo":"",
-        "ErrorDisplay":""
-    }
+        add friend
+        https://cloud.tencent.com/document/product/269/1643
+        :param from_account: 需要添加好友的账户
+        :param friends: need to be added  [FriendObj]
+        :return: response
+        response.content
+        {
+            "ResultItem":
+            [
+                {
+                    "To_Account":"id1",
+                    "ResultCode":0,
+                    "ResultInfo":""
+                },
+                {
+                    "To_Account":"id2",
+                    "ResultCode":30006,
+                    "ResultInfo":"Err_SNS_FriendAdd_Unpack_Profile_Data_Fail"
+                },
+                {
+                    "To_Account":"id3",
+                    "ResultCode":30002,
+                    "ResultInfo":"Err_SNS_FriendAdd_SdkAppId_Illegal"
+                }
+            ],
+            "Fail_Account":["id2","id3"],
+            "ActionStatus":"OK",
+            "ErrorCode":0,
+            "ErrorInfo":"",
+            "ErrorDisplay":""
+        }
 
-    """
+        """
         rest_url = "{}/sns/friend_add".format(self.tecent_url)
         data = {}
         data["From_Account"] = from_account
@@ -535,39 +536,39 @@ class TCIMClient(object):
             self, from_account: str, to_accounts: List[str], delete_type="Delete_Type_Both"
     ):
         """
-    delete friends
-    https://cloud.tencent.com/document/product/269/1644
-    :param from_account
-    :param to_accounts: list of user ids
-    :param delete_type: Delete_Type_Both or Delete_Type_Single
-    :return: response
-    response.content
-    {
-        "ResultItem":
-        [
-            {
-                "To_Account":"id1",
-                "ResultCode":0,
-                "ResultInfo":""
-            },
-            {
-                "To_Account":"id2",
-                "ResultCode":0,
-                "ResultInfo":""
-            },
-            {
-                "To_Account":"id3",
-                "ResultCode":0,
-                "ResultInfo":""
-            }
-        ],
-        "ActionStatus":"OK",
-        "ErrorCode":0,
-        "ErrorInfo":"0",
-        "ErrorDisplay":""
-    }
+        delete friends
+        https://cloud.tencent.com/document/product/269/1644
+        :param from_account
+        :param to_accounts: list of user ids
+        :param delete_type: Delete_Type_Both or Delete_Type_Single
+        :return: response
+        response.content
+        {
+            "ResultItem":
+            [
+                {
+                    "To_Account":"id1",
+                    "ResultCode":0,
+                    "ResultInfo":""
+                },
+                {
+                    "To_Account":"id2",
+                    "ResultCode":0,
+                    "ResultInfo":""
+                },
+                {
+                    "To_Account":"id3",
+                    "ResultCode":0,
+                    "ResultInfo":""
+                }
+            ],
+            "ActionStatus":"OK",
+            "ErrorCode":0,
+            "ErrorInfo":"0",
+            "ErrorDisplay":""
+        }
 
-    """
+        """
         rest_url = "{}/sns/friend_delete".format(self.tecent_url)
         data = {}
         try:
@@ -582,38 +583,38 @@ class TCIMClient(object):
 
     def update_friend(self, from_account: str, update_objs: List[UpdateFriendObj]):
         """
-    update friend  relational link data
-    https://cloud.tencent.com/document/product/269/12525
-    :param from_account:
-    :param update_objs: list[UpdateFriendObj]
-    :return: response
-    response.content
-    {
-        "ResultItem":
-        [
-            {
-                "To_Account":"id1",
-                "ResultCode":0,
-                "ResultInfo":""
-            },
-            {
-                "To_Account":"id2",
-                "ResultCode":30011,
-                "ResultInfo":"Err_SNS_FriendUpdate_Group_Num_Exceed_Threshold"
-            },
-            {
-                "To_Account":"id3",
-                "ResultCode":30002,
-                "ResultInfo":"Err_SNS_FriendImport_SdkAppId_Illegal"
-            }
-        ],
-        "Fail_Account":["id2","id3"],
-        "ActionStatus":"OK",
-        "ErrorCode":0,
-        "ErrorInfo":"",
-        "ErrorDisplay":""
-    }
-    """
+        update friend  relational link data
+        https://cloud.tencent.com/document/product/269/12525
+        :param from_account:
+        :param update_objs: list[UpdateFriendObj]
+        :return: response
+        response.content
+        {
+            "ResultItem":
+            [
+                {
+                    "To_Account":"id1",
+                    "ResultCode":0,
+                    "ResultInfo":""
+                },
+                {
+                    "To_Account":"id2",
+                    "ResultCode":30011,
+                    "ResultInfo":"Err_SNS_FriendUpdate_Group_Num_Exceed_Threshold"
+                },
+                {
+                    "To_Account":"id3",
+                    "ResultCode":30002,
+                    "ResultInfo":"Err_SNS_FriendImport_SdkAppId_Illegal"
+                }
+            ],
+            "Fail_Account":["id2","id3"],
+            "ActionStatus":"OK",
+            "ErrorCode":0,
+            "ErrorInfo":"",
+            "ErrorDisplay":""
+        }
+        """
 
         rest_url = "{}/sns/friend_update".format(self.tecent_url)
         data = {}
@@ -631,68 +632,68 @@ class TCIMClient(object):
 
     def get_friends(self, from_account: str, start_index: int = 0):
         """
-    get friends
-    https://cloud.tencent.com/document/product/269/1647
-    :param from_account
-    :param:start_index: start index from next_start_index in response
-    :return:response
-    response.content
-        {
-        "UserDataItem": [
+        get friends
+        https://cloud.tencent.com/document/product/269/1647
+        :param from_account
+        :param:start_index: start index from next_start_index in response
+        :return:response
+        response.content
             {
-                "To_Account": "id1",
-                "ValueItem": [
-                    {
-                        "Tag": "Tag_SNS_IM_AddSource",
-                        "Value": "AddSource_Type_Android"
-                    },
-                    {
-                        "Tag": "Tag_SNS_IM_Remark",
-                        "Value": "Remark1"
-                    },
-                    {
-                        "Tag": "Tag_SNS_IM_Group",
-                        "Value":["Group1","Group2"]
-                    },
-                    {
-                        "Tag": "Tag_SNS_IM_AddTime",
-                        "Value": 1563867420
-                    },
-                    {
-                        "Tag": "Tag_SNS_Custom_Test",
-                        "Value": "CustomData1"
-                    }
-                ]
-            },
-            {
-                "To_Account": "id2",
-                "ValueItem": [
-                    {
-                        "Tag": "Tag_SNS_IM_AddSource",
-                        "Value": "AddSource_Type_IOS"
-                    },
-                    {
-                        "Tag": "Tag_SNS_IM_Group",
-                        "Value":["Group1"]
-                    },
-                    {
-                        "Tag": "Tag_SNS_IM_AddTime",
-                        "Value": 1563867425
-                    }
-                ]
-            }
-        ],
-        "StandardSequence": 88,
-        "CustomSequence": 46,
-        "FriendNum": 20,
-        "CompleteFlag": 1,
-        "NextStartIndex": 0,
-        "ActionStatus": "OK",
-        "ErrorCode": 0,
-        "ErrorInfo": "",
-        "ErrorDisplay": ""
-    }
-    """
+            "UserDataItem": [
+                {
+                    "To_Account": "id1",
+                    "ValueItem": [
+                        {
+                            "Tag": "Tag_SNS_IM_AddSource",
+                            "Value": "AddSource_Type_Android"
+                        },
+                        {
+                            "Tag": "Tag_SNS_IM_Remark",
+                            "Value": "Remark1"
+                        },
+                        {
+                            "Tag": "Tag_SNS_IM_Group",
+                            "Value":["Group1","Group2"]
+                        },
+                        {
+                            "Tag": "Tag_SNS_IM_AddTime",
+                            "Value": 1563867420
+                        },
+                        {
+                            "Tag": "Tag_SNS_Custom_Test",
+                            "Value": "CustomData1"
+                        }
+                    ]
+                },
+                {
+                    "To_Account": "id2",
+                    "ValueItem": [
+                        {
+                            "Tag": "Tag_SNS_IM_AddSource",
+                            "Value": "AddSource_Type_IOS"
+                        },
+                        {
+                            "Tag": "Tag_SNS_IM_Group",
+                            "Value":["Group1"]
+                        },
+                        {
+                            "Tag": "Tag_SNS_IM_AddTime",
+                            "Value": 1563867425
+                        }
+                    ]
+                }
+            ],
+            "StandardSequence": 88,
+            "CustomSequence": 46,
+            "FriendNum": 20,
+            "CompleteFlag": 1,
+            "NextStartIndex": 0,
+            "ActionStatus": "OK",
+            "ErrorCode": 0,
+            "ErrorInfo": "",
+            "ErrorDisplay": ""
+        }
+        """
 
         rest_url = "{}/sns/friend_get".format(self.tecent_url)
         data = {}
@@ -707,41 +708,41 @@ class TCIMClient(object):
 
     def add_group(self, from_account: str, groups: List[str], to_accounts: List[str]):
         """
-    add group
-    https://cloud.tencent.com/document/product/269/10107
-    :param from_account  :
-    :param groups        ：list of groups
-    :param to_accounts   ：add user id to groups
-    :return:response
-    response.content
-    {
-        "ResultItem":
-        [
-            {
-                "To_Account": "id1",
-                "ResultCode": 0,
-                "ResultInfo": ""
-            },
-            {
-                "To_Account": "id2",
-                "ResultCode": 32216,
-                "ResultInfo": "Err_SNS_GroupAdd_ToTinyId_Not_Friend"
-            },
-            {
-                "To_Account": "id3",
-                "ResultCode": 30002,
-                "ResultInfo": "ERR_SDKAPPID_ILLEGAL"
-            }
-        ],
-        "Fail_Account":["id2","id3"],
-        "CurrentSequence": 3,
-        "ActionStatus": "OK",
-        "ErrorCode": 0,
-        "ErrorInfo": "",
-        "ErrorDisplay": ""
-    }
+        add group
+        https://cloud.tencent.com/document/product/269/10107
+        :param from_account  :
+        :param groups        ：list of groups
+        :param to_accounts   ：add user id to groups
+        :return:response
+        response.content
+        {
+            "ResultItem":
+            [
+                {
+                    "To_Account": "id1",
+                    "ResultCode": 0,
+                    "ResultInfo": ""
+                },
+                {
+                    "To_Account": "id2",
+                    "ResultCode": 32216,
+                    "ResultInfo": "Err_SNS_GroupAdd_ToTinyId_Not_Friend"
+                },
+                {
+                    "To_Account": "id3",
+                    "ResultCode": 30002,
+                    "ResultInfo": "ERR_SDKAPPID_ILLEGAL"
+                }
+            ],
+            "Fail_Account":["id2","id3"],
+            "CurrentSequence": 3,
+            "ActionStatus": "OK",
+            "ErrorCode": 0,
+            "ErrorInfo": "",
+            "ErrorDisplay": ""
+        }
 
-    """
+        """
 
         rest_url = "{}/sns/group_add".format(self.tecent_url)
         data = {}
@@ -757,20 +758,20 @@ class TCIMClient(object):
 
     def delete_group(self, from_account: str, groups: List[str]):
         """
-    delete group
-    https://cloud.tencent.com/document/product/269/10108
-    :param: from_account:
-    :param  groups: list of group names
-    :return:response
-    response.content
-    {
-        "CurrentSequence": 4,
-        "ActionStatus":"OK",
-        "ErrorCode":0,
-        "ErrorInfo":"0",
-        "ErrorDisplay":""
-    }
-    """
+        delete group
+        https://cloud.tencent.com/document/product/269/10108
+        :param: from_account:
+        :param  groups: list of group names
+        :return:response
+        response.content
+        {
+            "CurrentSequence": 4,
+            "ActionStatus":"OK",
+            "ErrorCode":0,
+            "ErrorInfo":"0",
+            "ErrorDisplay":""
+        }
+        """
         try:
             rest_url = "{}/sns/group_delete".format(self.tecent_url)
             data = {}
@@ -790,29 +791,29 @@ class TCIMClient(object):
             need_friend_flag: str = "Need_Friend_Type_Yes"
     ):
         """
-    get grounds
-    https://cloud.tencent.com/document/product/269/54763
-    :param from_account:
-    :param: groups: list of group names
-    :param: need_friend_flag: "Need_Friend_Type_Yes"
-    :return: response
-    response.content
-    {
-        "ResultItem": [
-            {
-                "GroupName": "group1",
-                "FriendNumber": 1,
-                "To_Account": ["friend1"]
-            }
-        ],
-        "CurrentSequence": 2,
-        "ActionStatus": "OK",
-        "ErrorCode": 0,
-        "ErrorInfo": "",
-        "ErrorDisplay": ""
-    }
+        get grounds
+        https://cloud.tencent.com/document/product/269/54763
+        :param from_account:
+        :param: groups: list of group names
+        :param: need_friend_flag: "Need_Friend_Type_Yes"
+        :return: response
+        response.content
+        {
+            "ResultItem": [
+                {
+                    "GroupName": "group1",
+                    "FriendNumber": 1,
+                    "To_Account": ["friend1"]
+                }
+            ],
+            "CurrentSequence": 2,
+            "ActionStatus": "OK",
+            "ErrorCode": 0,
+            "ErrorInfo": "",
+            "ErrorDisplay": ""
+        }
 
-    """
+        """
         rest_url = "{}/sns/group_get".format(self.tecent_url)
         data = {}
         try:
@@ -828,18 +829,18 @@ class TCIMClient(object):
 
     def send_message(self,messgeObj:MessageObj):
         """
-      send message
-      https://cloud.tencent.com/document/product/269/2282
-      :return: response
-      response.content
-      {
-        "ActionStatus": "OK",
-        "ErrorInfo": "",
-        "ErrorCode": 0,
-        "MsgTime": 1572870301,
-        "MsgKey": "89541_2574206_1572870301"
-      }
-      """
+        send message
+        https://cloud.tencent.com/document/product/269/2282
+        :return: response
+        response.content
+        {
+          "ActionStatus": "OK",
+          "ErrorInfo": "",
+          "ErrorCode": 0,
+          "MsgTime": 1572870301,
+          "MsgKey": "89541_2574206_1572870301"
+        }
+        """
         rest_url = "{}/openim/sendmsg".format(self.tecent_url)
         try:
             query = self._gen_query()

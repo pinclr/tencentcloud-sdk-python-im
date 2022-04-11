@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tencentcloud-sdk-python-im",
-    version="0.7.1",
+    version="0.8.0",
     author="Robert Wen",
     author_email="robert@pinclr.com",
     description="Python API Client for Tencent Cloud Instant Messaging Service",
@@ -15,6 +15,7 @@ setuptools.setup(
     packages=['tencentcloud_im'],
     package_dir={'': 'src'},
     package_data={'': ['tcim.json', '*.py']},
+    install_requires = ['tls-sig-api-v2>=1.1'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
