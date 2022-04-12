@@ -6,7 +6,7 @@ Usage
 Installation
 ------------
 
-To use the library, first install it using pip:
+To use the tencentcloud-sdk-python-im library, first install it using pip:
 
 .. code-block:: console
 
