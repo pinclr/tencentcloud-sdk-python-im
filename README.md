@@ -5,7 +5,7 @@ Tencent Cloud Python SDK for TIM (Tencent IM)
 ## INSTALL
 
 ```shell
-$ pip install --upgrade tencentcloud-sdk-python-im
+$ pip install tencentcloud-sdk-python-im --upgrade 
 ```
 
 ## EXAMPLES
