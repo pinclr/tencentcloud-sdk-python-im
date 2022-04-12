@@ -29,3 +29,5 @@ pytest
 ```shell
 $ python3 -m build
 ```
+
+[![Documentation Status](https://readthedocs.org/projects/tencentcloud-sdk-python-im/badge/?version=latest)](https://tencentcloud-sdk-python-im.readthedocs.io/en/latest/?badge=latest)
