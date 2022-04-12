@@ -1,0 +1,4 @@
+requests==2.25.1
+tls-sig-api-v2==1.1
+black==22.3.0
+yapf==0.32.0
