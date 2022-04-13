@@ -148,8 +148,8 @@ class SnsItemObj(object):
           AddTime：user time stamp  value:int
     """
 
-    def __init__(self, tag: str, value: str):
-        self.Tag = "Tag_SNS_IM_{}".format(tag)
+    def __init__(self, tag, value):
+        self.Tag = tag
         self.Value = value
 
 
@@ -630,6 +630,64 @@ class TCIMClient(object):
             logger.error("update freind failed:{}".format(e))
             return None
 
+    def get_target_friends(self,from_account:str,to_accounts:List[str],tags:List[str]):
+        """
+        get target friends
+        https://cloud.tencent.com/document/product/269/8609
+        :param from_account:
+        :param to_accounts: user ids list
+        :param tags: tags list
+        :return:response
+        response.content
+                {
+            "InfoItem": [
+                {
+                    "To_Account": "UserID_2",
+                    "SnsProfileItem": [
+                        {
+                            "Tag": "Tag_SNS_IM_Remark",
+                            "Value": "remark_2"
+                        },
+                        {
+                            "Tag": "Tag_SNS_IM_Group",
+                            "Value": ["group1","group2"]
+                        },
+                        {
+                            "Tag": "Tag_Profile_IM_Nick",
+                            "Value": "nick_2"
+                        },
+                        {
+                            "Tag": "Tag_SNS_Custom_Test",
+                            "Value": "custom_sns_2"
+                        },
+                        {
+                            "Tag": "Tag_Profile_Custom_Test",
+                            "Value": "custom_profile_2"
+                        }
+                    ],
+                    "ResultCode": 0,
+                    "ResultInfo": ""
+                }
+            ],
+            "ActionStatus": "OK",
+            "ErrorCode": 0,
+            "ErrorInfo": "",
+            "ErrorDisplay": ""
+        }
+        """
+        rest_url = "{}/sns/friend_get_list".format(self.tecent_url)
+        data = {}
+        try:
+            data["From_Account"] = from_account
+            data["To_Account"] = to_accounts
+            data["TagList"] = tags
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get target friends failed:{}".format(e))
+            return None
+
+
     def get_friends(self, from_account: str, start_index: int = 0):
         """
         get friends
@@ -1061,11 +1119,14 @@ class TCIMClient(object):
             return None
 
 
-
-
-
 if __name__ == "__main__":
     pass
+
+
+
+
+
+
 
 
 
