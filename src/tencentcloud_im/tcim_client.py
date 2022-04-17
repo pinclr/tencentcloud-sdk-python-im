@@ -75,8 +75,8 @@ class MessageObj(object):
             self,
             from_account: str,
             to_account: str,
-            text_messages: List[MessageText]=[],
-            attachment_messages: List[MessageFile]=[], sync_machine: int = 1):
+            text_messages: List[MessageText] = [],
+            attachment_messages: List[MessageFile] = [], sync_machine: int = 1):
         self.From_Account = from_account
         self.To_Account = to_account
         self.SyncOtherMachine = sync_machine
@@ -89,27 +89,43 @@ class MessageObj(object):
             self.MsgBody.append(attachment_message.__dict__)
 
 
+class GroupMessageObj(object):
+
+    def __init__(
+            self,
+            from_account:str,
+            send_time:int,
+            text_messages: List[MessageText] =[],
+            attachment_messages: List[MessageFile] = []):
+
+        self.From_Account = from_account
+        self.SendTime =send_time
+        self.Random = random.randint(0, 4294967295)
+        self.MsgBody = []
+        for text_message in text_messages:
+            self.MsgBody.append(text_message.__dict__)
+
+        for attachment_message in attachment_messages:
+            self.MsgBody.append(attachment_message.__dict__)
+
+
 class BatchMessageObj(object):
-  def __init__(
-          self,
-          from_account: str,
-          to_account:List[str],
-          text_messages: List[MessageText] = [],
-          attachment_messages: List[MessageFile] = [], sync_machine: int = 1):
-    self.From_Account = from_account
-    self.To_Account = to_account
-    self.SyncOtherMachine = sync_machine
-    self.MsgRandom = random.randint(0, 4294967295)
-    self.MsgBody = []
-    for text_message in text_messages:
-      self.MsgBody.append(text_message.__dict__)
+    def __init__(
+            self,
+            from_account: str,
+            to_account: List[str],
+            text_messages: List[MessageText] = [],
+            attachment_messages: List[MessageFile] = [], sync_machine: int = 1):
+        self.From_Account = from_account
+        self.To_Account = to_account
+        self.SyncOtherMachine = sync_machine
+        self.MsgRandom = random.randint(0, 4294967295)
+        self.MsgBody = []
+        for text_message in text_messages:
+            self.MsgBody.append(text_message.__dict__)
 
-    for attachment_message in attachment_messages:
-      self.MsgBody.append(attachment_message.__dict__)
-
-
-
-
+        for attachment_message in attachment_messages:
+            self.MsgBody.append(attachment_message.__dict__)
 
 
 class FriendObj(object):
@@ -167,37 +183,92 @@ class UpdateFriendObj(object):
         self.SnsItem = SnsItem
 
 
-# def Resposne(ActionStatus=None, ErrorInfo=None, ErrorCode=None,
-#              FailAccounts=None, ResultItem=None, UserDataItem=None,
-#              FriendNum=None, NextStartIndex=None, CompleteFlag=None,
-#              Fail_Account=None,ErrorDisplay=None,ResultCode=None):
-#   """
-#   :param ActionStatus: 请求处理的结果，OK 表示处理成功，FAIL 表示失败
-#   :param ErrorInfo:错误信息
-#   :param ErrorCode:错误码，0表示成功，非0表示失败
-#   :param:ResultItem: 单个帐号的结果对象数组
-#   :param FailAccounts:失败账户
-#   :param: UserDataItem: 好友信息
-#   :param: FriendNum:好友数
-#   :param:NextStartIndex:分页接口下一页的起始位置
-#   :param: CompleteFlag:分页的结束标识，非0值表示已完成全量拉取
-#   :return:
-#   """
-#   result = {}
-#   result["action_status"] = ActionStatus
-#   result["error_info"] = ErrorInfo
-#   result["err_code"] = ErrorCode
-#   result["faile_accounts"] = FailAccounts
-#   result["result_item"] = ResultItem
-#   result["userdata_item"] = UserDataItem
-#   result["friend_num"] = FriendNum
-#   result["next_start_index"] = NextStartIndex
-#   result["complate_flag"] = CompleteFlag
-#   result["faile_account"] = Fail_Account
-#   result["err"]
-#
-#
-#   return result
+class GroupMemObj(object):
+    """
+    群组成员
+    """
+
+    def __init__(self, user_id: str, role_type: str = "",join_time:int=0,unread_msg_num:int=0):
+        self.Member_Account = user_id
+        if role_type == "Admin":
+            self.Role = role_type
+        if join_time >0:
+            self.JoinTime = join_time
+        if unread_msg_num >0:
+            self.UnreadMsgNum = 0
+
+
+
+class GroupAppDefinedData(object):
+    """
+    群组自定义字段
+    """
+
+    def __init__(self, key: str, value: str):
+        self.Key = key
+        self.Value = value
+
+
+class GroupAttr(object):
+
+    def __init__(self,key:str,value:str):
+        self.key = key
+        self.value = value
+
+
+
+class GroupObj(object):
+    """
+    群组结构体
+    """
+
+    def __init__(
+            self,
+            owner_userid: str,
+            group_type: str,
+            group_name: str,
+            introdction: str = "",
+            notification: str = "",
+            face_url: str = "",
+            max_member_count: int = 500,
+            mem_list: List[GroupMemObj] = [],
+            applicationData: List[GroupAppDefinedData] = [],
+            group_id: str = ""):
+        """
+
+        :param owner_userid:
+        :param group_type:
+        :param group_name:
+        :param introdction:
+        :param notification:
+        :param face_url:
+        :param max_member_count:
+        :param mem_list:
+        :param applicationData:
+        :param group_id:
+        """
+
+
+        self.Owner_Account = owner_userid
+        self.Type = group_type
+        self.Name = group_name
+        self.MaxMemberCount = max_member_count
+        if introdction != "":
+            self.Introduction = introdction
+        if notification != "":
+            self.Notification = notification
+        if face_url != "":
+            self.FaceUrl = face_url
+        if len(mem_list) > 0:
+            self.MemberList = []
+            for one in mem_list:
+                self.MemberList.append(one.__dict__)
+        if len(applicationData) > 0:
+            self.AppDefinedData = []
+            for one in applicationData:
+                self.AppDefinedData.append(one.__dict__)
+        if group_id != "":
+            self.GroupId = group_id
 
 
 class TCIMClient(object):
@@ -241,7 +312,6 @@ class TCIMClient(object):
         api = TLSSigAPIv2(self.sdk_id, self.key)
         sig = api.gen_sig(user_id, expire_time)
         return sig
-
 
     def _gen_query(self):
         """
@@ -630,7 +700,7 @@ class TCIMClient(object):
             logger.error("update freind failed:{}".format(e))
             return None
 
-    def get_target_friends(self,from_account:str,to_accounts:List[str],tags:List[str]):
+    def get_target_friends(self, from_account: str, to_accounts: List[str], tags: List[str]):
         """
         get target friends
         https://cloud.tencent.com/document/product/269/8609
@@ -686,7 +756,6 @@ class TCIMClient(object):
         except Exception as e:
             logger.error("get target friends failed:{}".format(e))
             return None
-
 
     def get_friends(self, from_account: str, start_index: int = 0):
         """
@@ -764,9 +833,10 @@ class TCIMClient(object):
             logger.error("get user failed:{}".format(e))
             return None
 
-    def add_group(self, from_account: str, groups: List[str], to_accounts: List[str]):
+    def add_sns_group(self, from_account: str, groups: List[str], to_accounts: List[str]):
         """
         add group
+
         https://cloud.tencent.com/document/product/269/10107
         :param from_account  :
         :param groups        ：list of groups
@@ -814,7 +884,7 @@ class TCIMClient(object):
             logger.error("add group failed:{}".format(e))
             return None
 
-    def delete_group(self, from_account: str, groups: List[str]):
+    def delete_sns_group(self, from_account: str, groups: List[str]):
         """
         delete group
         https://cloud.tencent.com/document/product/269/10108
@@ -842,7 +912,7 @@ class TCIMClient(object):
             logger.error("delete group failed:{}".format(e))
             return None
 
-    def get_group(
+    def get_sns_group(
             self,
             from_account: str,
             groups: List[str] = [],
@@ -885,7 +955,7 @@ class TCIMClient(object):
             logger.error("get group failed:{}".format(e))
             return None
 
-    def send_message(self,messgeObj:MessageObj):
+    def send_message(self, messgeObj: MessageObj):
         """
         send message
         https://cloud.tencent.com/document/product/269/2282
@@ -907,8 +977,8 @@ class TCIMClient(object):
             logger.error("send message faield:{}".format(e))
             return None
 
-    def batch_send_message(self,batchMessageObj:BatchMessageObj):
-      """
+    def batch_send_message(self, batchMessageObj: BatchMessageObj):
+        """
       batch send message
       https://cloud.tencent.com/document/product/269/2282
       :return: response
@@ -921,15 +991,15 @@ class TCIMClient(object):
           "MsgKey": "89541_2574206_1572870301"
         }
       """
-      rest_url = "{}/openim/batchsendmsg".format(self.tecent_url)
-      try:
-        query = self._gen_query()
-        return requests.post(rest_url, params=query, data=json.dumps(batchMessageObj.__dict__))
-      except Exception as e:
-        logger.error("batch send message faield:{}".format(e))
-        return None
+        rest_url = "{}/openim/batchsendmsg".format(self.tecent_url)
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(batchMessageObj.__dict__))
+        except Exception as e:
+            logger.error("batch send message faield:{}".format(e))
+            return None
 
-    def import_message_to_im(self,messgeObj:MessageObj,timestamp:int,sync_from_old:int=1):
+    def import_message_to_im(self, messgeObj: MessageObj, timestamp: int, sync_from_old: int = 1):
         """
         import history message to im server
         https://cloud.tencent.com/document/product/269/2568
@@ -956,12 +1026,12 @@ class TCIMClient(object):
 
     def get_message_list(
             self,
-            from_account:str,
-            to_account:str,
-            max_count:int,
-            from_timestamp:int,
-            to_timestamp:int,
-            last_message_key:str=""):
+            from_account: str,
+            to_account: str,
+            max_count: int,
+            from_timestamp: int,
+            to_timestamp: int,
+            last_message_key: str = ""):
         """
         get message
         https://cloud.tencent.com/document/product/269/42794
@@ -1021,9 +1091,9 @@ class TCIMClient(object):
 
     def draw_message(
             self,
-            from_account:str,
-            to_account:str,
-            msg_key:str):
+            from_account: str,
+            to_account: str,
+            msg_key: str):
         """
         draw message
         https://cloud.tencent.com/document/product/269/38980
@@ -1052,9 +1122,9 @@ class TCIMClient(object):
             return None
 
     def set_user_message_read(self,
-                              from_account:str,
-                              to_account:str,
-                              read_timestamp:int=0):
+                              from_account: str,
+                              to_account: str,
+                              read_timestamp: int = 0):
         """
         set user message read
         https://cloud.tencent.com/document/product/269/50349
@@ -1082,7 +1152,7 @@ class TCIMClient(object):
             logger.error("set  message read failed:{}".format(e))
             return None
 
-    def get_unread_num(self,from_account:str,to_accounts:List[str]=[]):
+    def get_unread_num(self, from_account: str, to_accounts: List[str] = []):
         """
         get unread message num
         https://cloud.tencent.com/document/product/269/56043
@@ -1109,13 +1179,1123 @@ class TCIMClient(object):
         rest_url = "{}/openim/get_c2c_unread_msg_num".format(self.tecent_url)
         data = {}
         data["To_Account"] = from_account
-        if len(to_accounts) >0:
+        if len(to_accounts) > 0:
             data["Peer_Account"] = to_accounts
         try:
             query = self._gen_query()
             return requests.post(rest_url, params=query, data=json.dumps(data))
         except Exception as e:
             logger.error("set  message read failed:{}".format(e))
+            return None
+
+    def get_group(self, limit_nm: int = 1000, next_num: int = 0, group_type: str = ""):
+        """
+        get group
+        https://cloud.tencent.com/document/product/269/1614
+        :param limit_nm: max number one request you get
+        :param next_num: next page
+        :param group_type: you can choice Public（公开群），Private（即 Work，好友工作群），ChatRoom（即 Meeting，会议群），AVChatRoom（音视频聊天室），
+        BChatRoom（在线成员广播大群）和社群（Community）
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "TotalCount": 2,
+            "GroupIdList": [
+                {
+                    "GroupId": "@TGS#2J4SZEAEL"
+                },
+                {
+                    "GroupId": "@TGS#2C5SZEAEF"
+                }
+            ],
+            "Next": 4454685361
+        }
+        """
+        rest_url = "{}/group_open_http_svc/get_appid_group_list".format(self.tecent_url)
+
+        data = {}
+        data["Limit"] = limit_nm
+        data["Next"] = next_num
+        data["GroupType"] = group_type
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("set  message read failed:{}".format(e))
+            return None
+
+    def create_group(self, groupObj: GroupObj):
+        """
+        create group
+        https://cloud.tencent.com/document/product/269/1615
+        :return: response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "GroupId": "@TGS#2J4SZEAEL"
+        }
+        """
+        rest_url = "{}/group_open_http_svc/create_group".format(self.tecent_url)
+        data = groupObj.__dict__
+        group_type = data.get("Type")
+        if group_type not in ["Public", "Private", "ChatRoom", "AVChatRoom", "Community"]:
+            logger.error("group type only choice Public,Private,ChatRoom,AVChatRoom,Community")
+            return None
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("group create failed:{}".format(e))
+            return None
+
+    def get_group_detail(self,
+                         group_id_list: List[str],
+                         baseInfoFilter: List[str] = [],
+                         memInfoFilter: List[str] = [],
+                         appDefineDataFilterGroup: List[str] = [],
+                         appDefineDataFilterMem: List[str] = []
+                         ):
+        """
+        https://cloud.tencent.com/document/product/269/1616
+        :param group_id_list:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "", // 这里的 ErrorInfo 无意义，需要判断每个群组的 ErrorInfo
+            "ErrorCode": 0, // 这里的 ErrorCode 无意义，需要判断每个群组的 ErrorCode
+            "GroupInfo": [ // 返回结果为群组信息数组，为简单起见这里仅列出一个群
+                {
+                    "GroupId": "@TGS#2J4SZEAEL",
+                    "ErrorCode": 0, // 针对该群组的返回结果
+                    "ErrorInfo": "" , // 针对该群组的返回结果
+                    "Type": "Public", // 群组类型
+                    "Name": "MyFirstGroup", // 群组名称
+                    "Appid":1400001001,//即时通信应用的 SDKAppID
+                    "Introduction": "TestGroup", // 群组简介
+                    "Notification": "TestGroup", // 群组通知
+                    "FaceUrl": "http://this.is.face.url", // 群组头像
+                    "Owner_Account": "leckie", // 群主 ID
+                    "CreateTime": 1426976500, // 群组创建时间（UTC 时间）
+                    "LastInfoTime": 1426976500, // 最后群资料变更时间（UTC 时间）
+                    "LastMsgTime": 1426976600, // 群内最后一条消息的时间（UTC 时间）
+                    "NextMsgSeq": 1234,
+                    "MemberNum": 2, // 当前群成员数量
+                    "MaxMemberNum": 50, // 最大群成员数量
+                    "ApplyJoinOption": "FreeAccess", // 申请加群处理方式
+                    "ShutUpAllMember": "On", // 群全员禁言状态
+                    "AppDefinedData": [ // 群组维度的自定义字段
+                        {
+                            "Key": "GroupTestData1", // 自定义字段的key
+                            "Value": "xxxx" // 自定义字段的值
+                        },
+                        {
+                            "Key": "GroupTestData2",
+                            "Value": "abc\u0000\u0001" // 自定义字段支持二进制数据
+                        }
+                    ],
+                    "MemberList": [ // 群成员列表
+                        {
+                            "Member_Account": "leckie", // 成员 ID
+                            "Role": "Owner", // 群内角色
+                            "JoinTime": 1425976500, // 入群时间（UTC 时间）
+                            "MsgSeq": 1233,
+                            "MsgFlag": "AcceptAndNotify", // 消息屏蔽选项
+                            "LastSendMsgTime": 1425976500, // 最后发言时间（UTC 时间）
+                            "ShutUpUntil": 1431069882, // 禁言截止时间（UTC 时间）
+                            "AppMemberDefinedData": [ // 群成员自定义字段
+                                {
+                                     "Key": "MemberDefined1",
+                                     "Value": "ModifyDefined1"
+                                },
+                                {
+                                     "Key": "MemberDefined2",
+                                     "Value": "ModifyDefined2"
+                                }
+                            ]
+                        },
+                        {
+                            "Member_Account": "peter",
+                            "Role": "Member",
+                            "JoinTime": 1425976500, // 入群时间
+                            "MsgSeq": 1233,
+                            "MsgFlag": "AcceptAndNotify",
+                            "LastSendMsgTime": 1425976500, // 最后一次发消息的时间
+                            "ShutUpUntil": 0, // 0表示未被禁言，否则为禁言的截止时间
+                            "AppMemberDefinedData":[ // 群成员自定义字段
+                                {
+                                    "Key": "MemberDefined1",
+                                    "Value": "ModifyDefined1"
+                                },
+                                {
+                                    "Key":"MemberDefined2",
+                                    "Value":"ModifyDefined2"
+                                }
+                             ]
+                        }
+                    ]
+                }
+            ]
+        }
+        """
+        rest_url = "{}/group_open_http_svc/get_group_info".format(self.tecent_url)
+
+        data = {}
+        data["GroupIdList"] = group_id_list
+        responseFilter = {}
+        if len(baseInfoFilter) > 0:
+            responseFilter["GroupBaseInfoFilter"] = baseInfoFilter
+
+        if len(memInfoFilter) > 0:
+            responseFilter["MemberInfoFilter"] = memInfoFilter
+
+        if len(appDefineDataFilterGroup) > 0:
+            responseFilter["AppDefinedDataFilter_Group"] = appDefineDataFilterGroup
+
+        if len(appDefineDataFilterMem) > 0:
+            responseFilter["AppDefinedDataFilter_GroupMember"] = appDefineDataFilterMem
+
+        if len(responseFilter) > 0:
+            data["ResponseFilter"] = responseFilter
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get group info failed:{}".format(e))
+            return None
+
+    def get_group_mem_info_detail(self,
+                                  group_id: str,
+                                  limit_count: int = 100,
+                                  offset: int = 0,
+                                  memInfoFilter: List[str] = [],
+                                  memRoleFilter: List[str] = [],
+                                  next: str = "",
+                                  appDefineDataFilterMem: List[str] = []):
+        """
+        https://cloud.tencent.com/document/product/269/1617
+        :param group_id:
+        :param limit_count:
+        :param offset:
+        :return: response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "Next": "144115265295492787", // 仅社群会返回该字段
+            "MemberNum": 2, // 本群组的群成员总数
+            "MemberList": [ // 群成员列表
+                {
+                    "Member_Account": "bob",
+                    "Role": "Owner",
+                    "JoinTime": 1425976500, // 入群时间
+                    "MsgSeq": 1233,
+                    "MsgFlag": "AcceptAndNotify",
+                    "LastSendMsgTime": 1425976500, // 最后一次发消息的时间
+                    "ShutUpUntil": 1431069882, // 禁言截至时间（秒数）
+                    "AppMemberDefinedData": [ //群成员自定义字段
+                        {
+                           "Key": "MemberDefined1",
+                           "Value": "ModifyDefined1"
+                        },
+                        {
+                            "Key": "MemberDefined2",
+                            "Value": "ModifyDefined2"
+                        }
+                     ]
+                },
+                {
+                    "Member_Account": "peter",
+                    "Role": "Member ",
+                    "JoinTime": 1425976500,
+                    "MsgSeq": 1233,
+                    "MsgFlag": "AcceptAndNotify",
+                    "LastSendMsgTime": 1425976500,
+                    "ShutUpUntil": 0, // 0表示未被禁言，否则为禁言的截止时间
+                    "AppMemberDefinedData": [ // 群成员自定义字段
+                        {
+                           "Key": "MemberDefined1",
+                           "Value": "ModifyDefined1"
+                        },
+                        {
+                            "Key": "MemberDefined2",
+                            "Value": "ModifyDefined2"
+                        }
+                     ]
+                }
+            ]
+        }
+        """
+        rest_url = "{}/group_open_http_svc/get_group_member_info".format(self.tecent_url)
+
+        data = {}
+        data["GroupId"] = group_id
+        data["Limit"] = limit_count
+        data["Offset"] = offset
+        if len(memInfoFilter) > 0:
+            data["MemberInfoFilter"] = memInfoFilter
+
+        if len(memRoleFilter) > 0:
+            data["MemberRoleFilter"] = memRoleFilter
+
+        if len(appDefineDataFilterMem) > 0:
+            data["AppDefinedDataFilter_GroupMember"] = appDefineDataFilterMem
+
+        if next != "":
+            data["Next"] = next
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get group member info failed:{}".format(e))
+            return None
+
+    def update_group_baseinfo(
+            self,
+            group_id: str,
+            group_name: str = "",
+            introduction: str = "",
+            notification: str = "",
+            face_url: str = "",
+            max_member_num: int = 0,
+            appJoinOption: str = "",
+            shutUpFlag: str = "",
+            appDefineData: List[GroupAppDefinedData] = []):
+        """
+        https://cloud.tencent.com/document/product/269/1620
+        :param group_id:
+        :param group_name:
+        :param introduction:
+        :param notification:
+        :param face_url:
+        :param max_member_num:
+        :param appJoinOption:
+        :param shutUpFlag:
+        :return: response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/group_open_http_svc/modify_group_base_info".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        if group_name != "":
+            data["Name"] = group_name
+        if introduction:
+            data["Introduction"] = introduction
+        if notification:
+            data["Notification"] = notification
+        if face_url:
+            data["FaceUrl"] = face_url
+        if max_member_num > 0:
+            data["MaxMemberNum"] = max_member_num
+        if appJoinOption != "":
+            data["ApplyJoinOption"] = appJoinOption
+        if shutUpFlag == "On" or shutUpFlag == "Off":
+            data["ShutUpAllMember"] = shutUpFlag
+
+        if len(appDefineData) > 0:
+            data["AppDefinedData"] = [i.__dict__ for i in appDefineData]
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("update group info failed:{}".format(e))
+            return None
+
+    def add_group_member(
+            self,
+            group_id: str,
+            mem_list: List[GroupMemObj],
+            silence: int = 1):
+        """
+        https://cloud.tencent.com/document/product/269/1621
+        :param group_id:
+        :param mem_list:
+        :param silence:
+        :return:
+        """
+        rest_url = "{}/group_open_http_svc/add_group_member".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["Silence"] = silence
+        data["MemberList"] = [i.__dict__ for i in mem_list]
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("add mem to group info failed:{}".format(e))
+            return None
+
+    def delete_group_mem(
+            self,
+            group_id: str,
+            mem_list: List[str],
+            silence: int = 1):
+        """
+        https://cloud.tencent.com/document/product/269/1622
+        :param group_id:
+        :param mem_list:
+        :param silence:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/group_open_http_svc/delete_group_member".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["Silence"] = silence
+        data["MemberToDel_Account"] = mem_list
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("add mem to group info failed:{}".format(e))
+            return None
+
+    def update_group_mem_info(
+            self,
+            group_id:str,
+            mem_id:str,
+            role_type:str="",
+            namecard:str="",
+            appMemDefineData:List[GroupAppDefinedData]=[],
+            shutUpTime:int=0):
+        """
+        https://cloud.tencent.com/document/product/269/1623
+        :param group_id:
+        :param mem_id:
+        :param role_type:
+        :param namecard:
+        :param appMemDefineData:
+        :param shutUpTime:
+        :return:
+        """
+        rest_url = "{}/group_open_http_svc/modify_group_member_info".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["Member_Account"] = mem_id
+        if role_type == "Member" or role_type == "Admin":
+            data["Role"] = role_type
+        if namecard != "":
+            data["NameCard"] = namecard
+        if shutUpTime >0:
+            data["ShutUpTime"] = shutUpTime
+
+        if len(appMemDefineData) >0:
+            data["AppMemberDefinedData"] = [i.__dict__ for i in appMemDefineData]
+
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("update mem to group info failed:{}".format(e))
+            return None
+
+    def delete_group(
+            self,
+            group_id:str):
+        """
+        https://cloud.tencent.com/document/product/269/1624
+        :param group_id:
+        :return:
+        """
+        rest_url = "{}/group_open_http_svc/destroy_group".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("update mem to group info failed:{}".format(e))
+            return None
+
+
+    def get_joined_groups(
+            self,
+            user_id:str,
+            limit_count:int=0,
+            offset:int=0,
+            group_type:str="",
+            baseInfoFilter:List[str]=[],
+            selfInfoFilter:List[str]=[]):
+        """
+        https://cloud.tencent.com/document/product/269/1625
+        :param user_id:
+        :param limt_count:
+        :param offset:
+        :param group_type:
+        :param baseInfoFilter:
+        :param selfInfoFilter:
+        :return:response
+        reponse.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "TotalCount": 1, // 不论 Limit 和 Offset 如何设置，该值总是满足条件的群组总数
+            "GroupIdList": [
+                {
+                    "ApplyJoinOption": "DisableApply",
+                    "CreateTime": 1585718204,
+                    "FaceUrl": "",
+                    "GroupId": "@TGS#16UMONKGG",
+                    "Introduction": "",
+                    "LastInfoTime": 1588148506,
+                    "LastMsgTime": 0,
+                    "MaxMemberNum": 200,
+                    "MemberNum": 1,
+                    "Name": "d",
+                    "NextMsgSeq": 2,
+                    "Notification": "",
+                    "Owner_Account": "",
+                    "SelfInfo": {
+                        "JoinTime": 1588148506,
+                        "MsgFlag": "AcceptAndNotify",
+                        "Role": "Member",
+                        "MsgSeq": 1
+                    },
+                    "ShutUpAllMember": "Off",
+                    "Type": "Private"
+                }
+            ]
+        }
+        """
+        rest_url = "{}/group_open_http_svc/get_joined_group_list".format(self.tecent_url)
+        data = {}
+        data["Member_Account"] = user_id
+        if limit_count >0:
+            data["Limit"]= limit_count
+        if offset >0:
+            data["Offset"] = offset
+
+        if group_type != "":
+            data["GroupType"] = group_type
+
+        responseFilter = {}
+        if len(baseInfoFilter) >0:
+            responseFilter["GroupBaseInfoFilter"] = baseInfoFilter
+
+        if len(selfInfoFilter) >0:
+            responseFilter["SelfInfoFilter"] = selfInfoFilter
+
+        if len(responseFilter) >0:
+            data["ResponseFilter"] = responseFilter
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("update mem to group info failed:{}".format(e))
+            return None
+
+
+
+    def get_mem_role_in_group(
+            self,
+            group_id:str,
+            user_ids:List[str]):
+        """
+        https://cloud.tencent.com/document/product/269/1626
+        :param group_id:
+        :param user_ids:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "UserIdList": [ // 结果
+                {
+                    "Member_Account": "leckie",
+                    "Role": "Owner" // 成员角色：Owner/Admin/Member/NotMember
+                },
+                {
+                    "Member_Account": "peter",
+                    "Role": "Member"
+                },
+                {
+                    "Member_Account": "wesley",
+                    "Role": "NotMember"
+                }
+            ]
+        }
+        """
+        rest_url = "{}/group_open_http_svc/get_role_in_group".format(self.tecent_url)
+        data = {}
+        data["GroupId"] =group_id
+        data["User_Account"] = user_ids
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get mem role in group failed:{}".format(e))
+            return None
+
+
+    def forbid_send_msg(
+            self,
+            group_id:str,
+            user_ids:List[str],
+            shutUpTime:int):
+        """
+        https://cloud.tencent.com/document/product/269/1627
+        :param group_id:
+        :param user_ids:
+        :param shutUpTime: if shutUpTime =0  cancel shutup
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/group_open_http_svc/forbid_send_msg".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["Members_Account"] = user_ids
+        data["ShutUpTime"] =shutUpTime
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get mem role in group failed:{}".format(e))
+            return None
+
+
+    def get_group_shutup_list(self,group_id:str):
+        """
+        https://cloud.tencent.com/document/product/269/2925
+        :param group_id:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorCode": 0,
+            "GroupId": "@TGS#2FZNNRAEU",
+            "ShuttedUinList": [ // 群组中被禁言的用户列表
+                {
+                    "Member_Account": "tommy", // 用户 ID
+                    "ShuttedUntil": 1458115189 // 禁言到的时间（使用 UTC 时间，即世界协调时间）
+                },
+                {
+                    "Member_Account": "peter",
+                    "ShuttedUntil": 1458115189
+                }
+            ]
+        }
+        """
+        rest_url = "{}/group_open_http_svc/get_group_shutted_uin".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get mem role in group failed:{}".format(e))
+            return None
+
+    def send_group_message(
+            self,
+            group_id:str,
+            messageText:List[MessageText]=[],
+            attchements:List[MessageFile]=[],
+            to_accounts:List[str]=[],
+            from_account:str="",
+            msgPriority:str="",):
+        """
+        https://cloud.tencent.com/document/product/269/1629
+        :param group_id:
+        :param messageText:
+        :param attchements:
+        :param to_accounts:
+        :param from_account:
+        :param msgPriority:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "MsgTime": 1497249503,
+            "MsgSeq": 1
+        }
+        """
+        rest_url = "{}/group_open_http_svc/send_group_msg".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["Random"] = random.randint(0, 4294967295)
+        if len(to_accounts) >0:
+            data["To_Account"] = to_accounts
+
+        if from_account != "":
+            data["From_Account"] = from_account
+
+        if msgPriority == "High" or msgPriority == "Low":
+            data["MsgPriority"] = msgPriority
+
+        messageBody = []
+        if len(messageText) >0:
+            messageBody.extend([ i.__dict__ for i in messageText])
+
+        if len(attchements) >0:
+            messageBody.extend([ i.__dict__ for i in attchements])
+
+        if len(messageBody) >0:
+            data["MsgBody"] = messageBody
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("send message in group failed:{}".format(e))
+            return None
+
+
+    def send_system_message_in_group(
+            self,
+            group_id:str,
+            content:str,
+            to_accounts:List[str]=[]):
+        """
+        https://cloud.tencent.com/document/product/269/1630
+        :param group_id:
+        :param content:
+        :param to_accounts:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+
+        rest_url = "{}/group_open_http_svc/send_group_system_notification".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["Content"] = content
+
+        if len(to_accounts) > 0:
+            data["ToMembers_Account"] = to_accounts
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("send message in group failed:{}".format(e))
+            return None
+
+
+    def change_group_owner(self,group_id:str,new_owner_id:str):
+        """
+        https://cloud.tencent.com/document/product/269/1633
+        :param group_id:
+        :param new_owner_id:
+        :return: response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/group_open_http_svc/change_group_owner".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["NewOwner_Account"] = new_owner_id
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("change group owner failed:{}".format(e))
+            return None
+
+
+    def recall_group_message(self,group_id:str,msg_ids:List[str]):
+        """
+        https://cloud.tencent.com/document/product/269/12341
+        :param group_id:
+        :param msg_ids:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "RecallRetList":[
+                {
+                    "MsgSeq":100,
+                    "RetCode":10030
+                },
+                {
+                    "MsgSeq":101,
+                    "RetCode":0
+                }
+            ]
+        }
+        """
+        rest_url = "{}/group_open_http_svc/group_msg_recall".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        msgs = []
+        for i in msg_ids:
+            tmp_map= {}
+            tmp_map["MsgSeq"] = i
+            msgs.append(tmp_map)
+
+        data["MsgSeqList"] = msgs
+
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("recall group message failed:{}".format(e))
+            return None
+
+
+    def import_message_to_group(
+            self,
+            group_id:str,
+            recent_contract_flag:int=1,
+            messages:List[GroupMessageObj]=[]):
+        """
+        https://cloud.tencent.com/document/product/269/1635
+        :param group_id:
+        :param recent_contract_flag:
+        :param messages:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "ImportMsgResult": [
+                {
+                    "MsgSeq": 1,
+                    "MsgTime": 1620808101,
+                    "Result": 0
+                },
+                {
+                    "MsgSeq": 2,
+                    "MsgTime": 1620892821,
+                    "Result": 0
+                },
+            ]
+        }
+        """
+        rest_url = "{}/group_open_http_svc/import_group_msg".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["RecentContactFlag"] = recent_contract_flag
+        if len(messages) >0:
+            data["MsgList"] = [ i.__dict__ for i in messages]
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("import group message failed:{}".format(e))
+            return None
+
+
+    def import_group_members(
+            self,
+            group_id:str,
+            mem_list:List[GroupMemObj]= []):
+        """
+        https://cloud.tencent.com/document/product/269/1636
+        :param group_id:
+        :param mem_list:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "MemberList": [
+            {
+                 "Member_Account": "tommy",
+                 "Result": 1 // 导入结果：0表示失败；1表示成功；2表示已经是群成员
+            },
+            {
+                 "Member_Account": "jared",
+                 "Result": 1
+            }]
+        }
+        """
+        rest_url = "{}/group_open_http_svc/import_group_member".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        if len(mem_list) > 0:
+            data["MemberList"] = [i.__dict__ for i in mem_list]
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("import group message failed:{}".format(e))
+            return None
+
+
+    def set_group_unread_msg_num(
+            self,
+            group_id:str,
+            mem_id:str,
+            unread_num:int):
+        """
+        https://cloud.tencent.com/document/product/269/1637
+        :param group_id:
+        :param mem_id:
+        :param unread_num:
+        :return: response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/group_open_http_svc/set_unread_msg_num".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["Member_Account"] = mem_id
+        data["UnreadMsgNum"] = unread_num
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("import group message failed:{}".format(e))
+            return None
+
+
+    def delete_group_msg_by_sender(
+            self,
+            group_id:str,
+            send_account:str):
+        """
+        https://cloud.tencent.com/document/product/269/2359
+        :param group_id:
+        :param send_account:
+        :return:
+        """
+        rest_url = "{}/group_open_http_svc/delete_group_msg_by_sender".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["Sender_Account"] = send_account
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("delete mesg in group  failed:{}".format(e))
+            return None
+
+
+    def get_msg_in_group(
+            self,
+            group_id:str,
+            msg_num:int,
+            with_recalled_msg:int=1,
+            msg_seq:int=0):
+        """
+        https://cloud.tencent.com/document/product/269/2738
+        :param group_id:
+        :param msg_num:
+        :param with_recalled_msg:
+        :param msg_seq:
+        :return:response
+        response.content
+                {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "GroupId": "@TGS#15ERQPAER",
+            "IsFinished": 1,
+            "RspMsgList": [
+                {
+                    "From_Account": "144115197276518801",
+                    "IsPlaceMsg": 0,
+                    "MsgBody": [
+                        {
+                            "MsgContent": {
+                                "Data": "\b\u0001\u0010\u0006\u001A\u0006猫瞳",
+                                "Desc": "MIF",
+                                "Ext": ""
+                            },
+                            "MsgType": "TIMCustomElem"
+                        },
+                        {
+                            "MsgContent": {
+                                "Data": "",
+                                "Index": 15
+                            },
+                            "MsgType": "TIMFaceElem"
+                        }
+                    ],
+                    "MsgPriority": 1,
+                    "MsgRandom": 51083293,
+                    "MsgSeq": 7803321,
+                    "MsgTimeStamp": 1458721802
+                },
+                {
+                    "From_Account": "144115198339527735",
+                    "IsPlaceMsg": 0,
+                    "MsgBody": [
+                        {
+                            "MsgContent": {
+                                "Data": "\b\u0001\u0010\u0006\u001A\u000F西瓜妹妹。",
+                                "Desc": "MIF",
+                                "Ext": ""
+                            },
+                            "MsgType": "TIMCustomElem"
+                        },
+                        {
+                            "MsgContent": {
+                                "Text": "报上来"
+                            },
+                            "MsgType": "TIMTextElem"
+                        }
+                    ],
+                    "MsgPriority": 1,
+                    "MsgRandom": 235168582,
+                    "MsgSeq": 7803320,
+                    "MsgTimeStamp": 1458721797
+                }
+            ]
+        }
+
+        """
+        rest_url = "{}/group_open_http_svc/group_msg_get_simple".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["ReqMsgNumber"] = msg_num
+        data["WithRecalledMsg"] = with_recalled_msg
+        if msg_seq >0:
+            data["ReqMsgSeq"] = msg_seq
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get msg in group  failed:{}".format(e))
+            return None
+
+    def get_online_member_num(self,group_id:str):
+        """
+        https://cloud.tencent.com/document/product/269/49180
+        :param group_id:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "OnlineMemberNum":1000 //在线人数
+        }
+        """
+        rest_url = "{}/group_open_http_svc/get_online_member_num".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get mem number in online group failed:{}".format(e))
+            return None
+
+
+    def get_group_attr(self,group_id:str):
+        """
+        https://cloud.tencent.com/document/product/269/67012
+        :param group_id:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0,
+            "GroupAttrAry": [
+                {
+                    "key": "attr_key1",
+                    "value": "attr_val1"
+                },
+                {
+                    "key": "attr_key2",
+                    "value": "attr_val2"
+                }
+            ]
+        }
+        """
+        rest_url = "{}/group_open_attr_http_svc/get_group_attr".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("get group attr failed:{}".format(e))
+            return None
+
+    def update_group_attr(self,group_id:str,attr_list:List[GroupAttr]):
+        """
+        https://cloud.tencent.com/document/product/269/67010
+        :param group_id:
+        :param attr_list:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/group_open_http_svc/modify_group_attr".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        data["GroupAttr"] = [ i.__dict__ for i in attr_list]
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("update group attrfailed:{}".format(e))
+            return None
+
+
+    def clean_group_attr(self,group_id:str):
+        """
+        https://cloud.tencent.com/document/product/269/67009
+        :param group_id:
+        :return:response
+        response.content
+        {
+            "ActionStatus": "OK",
+            "ErrorInfo": "",
+            "ErrorCode": 0
+        }
+        """
+        rest_url = "{}/group_open_http_svc/clear_group_attr".format(self.tecent_url)
+        data = {}
+        data["GroupId"] = group_id
+        try:
+            query = self._gen_query()
+            return requests.post(rest_url, params=query, data=json.dumps(data))
+        except Exception as e:
+            logger.error("update group attrfailed:{}".format(e))
             return None
 
 
@@ -1135,3 +2315,23 @@ if __name__ == "__main__":
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    pass
