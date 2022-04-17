@@ -248,6 +248,7 @@ class GroupObj(object):
         :param group_id:
         """
 
+
         self.Owner_Account = owner_userid
         self.Type = group_type
         self.Name = group_name
@@ -1257,7 +1258,7 @@ class TCIMClient(object):
                          baseInfoFilter: List[str] = [],
                          memInfoFilter: List[str] = [],
                          appDefineDataFilterGroup: List[str] = [],
-                         appDefineDataFilterMem: list[str] = []
+                         appDefineDataFilterMem: List[str] = []
                          ):
         """
         https://cloud.tencent.com/document/product/269/1616
@@ -1486,7 +1487,7 @@ class TCIMClient(object):
             "ErrorCode": 0
         }
         """
-        rest_url = "{}/group_open_http_svc/get_group_member_info".format(self.tecent_url)
+        rest_url = "{}/group_open_http_svc/modify_group_base_info".format(self.tecent_url)
         data = {}
         data["GroupId"] = group_id
         if group_name != "":
@@ -1708,7 +1709,7 @@ class TCIMClient(object):
 
     def get_mem_role_in_group(
             self,
-            group_id,
+            group_id:str,
             user_ids:List[str]):
         """
         https://cloud.tencent.com/document/product/269/1626
@@ -2299,4 +2300,38 @@ class TCIMClient(object):
 
 
 if __name__ == "__main__":
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     pass
