@@ -6,8 +6,8 @@ project = 'tencentcloud-sdk-python-im'
 copyright = '2022, Pinclr'
 author = 'coding@pinclr.com'
 
-release = '0.9.0'
-version = '0.9.0'
+release = '0.9.3'
+version = '0.9.3'
 
 # -- General configuration
 
