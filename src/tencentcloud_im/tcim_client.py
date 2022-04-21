@@ -76,7 +76,19 @@ class MessageObj(object):
             from_account: str,
             to_account: str,
             text_messages: List[MessageText] = [],
-            attachment_messages: List[MessageFile] = [], sync_machine: int = 1):
+            attachment_messages: List[MessageFile] = [],
+            sync_machine: int = 1,
+            extra_data: str=""):
+        """
+        https://cloud.tencent.com/document/product/269/2282
+        消息结构体
+        :param from_account:
+        :param to_account:
+        :param text_messages: 消息结构体
+        :param attachment_messages: 附件消息列表
+        :param sync_machine: 同步机器
+        :param extra_data: 自定义消息
+        """
         self.From_Account = from_account
         self.To_Account = to_account
         self.SyncOtherMachine = sync_machine
@@ -87,6 +99,10 @@ class MessageObj(object):
 
         for attachment_message in attachment_messages:
             self.MsgBody.append(attachment_message.__dict__)
+
+        if extra_data != "":
+            self.CloudCustomData = extra_data
+
 
 
 class GroupMessageObj(object):
