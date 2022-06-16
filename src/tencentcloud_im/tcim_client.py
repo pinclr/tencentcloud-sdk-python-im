@@ -18,6 +18,7 @@ import logging
 import random
 from datetime import datetime
 from typing import List
+
 import requests
 from TLSSigAPIv2 import TLSSigAPIv2
 
@@ -33,7 +34,9 @@ class MyLogger(object):
         my_logger.setLevel(logging_level)
         handler = logging.StreamHandler()
         handler.setLevel(logging_level)
-        formatter = logging.Formatter('%(asctime)s %(filename)s:%(lineno)d [%(levelname)s]%(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s %(filename)s:%(lineno)d [%(levelname)s]%(message)s'
+        )
         handler.setFormatter(formatter)
         my_logger.addHandler(handler)
         return my_logger
@@ -49,9 +52,7 @@ class MessageText(object):
 
     def __init__(self, message):
         self.MsgType = "TIMTextElem"
-        self.MsgContent = {
-            "Text": message
-        }
+        self.MsgContent = {"Text": message}
 
 
 class MessageFile(object):
@@ -72,13 +73,14 @@ class MessageFile(object):
 class MessageObj(object):
 
     def __init__(
-            self,
-            from_account: str,
-            to_account: str,
-            text_messages: List[MessageText] = [],
-            attachment_messages: List[MessageFile] = [],
-            sync_machine: int = 1,
-            extra_data: str=""):
+        self,
+        from_account: str,
+        to_account: str,
+        text_messages: List[MessageText] = [],
+        attachment_messages: List[MessageFile] = [],
+        sync_machine: int = 1,
+        extra_data: str = ""
+    ):
         """
         https://cloud.tencent.com/document/product/269/2282
         消息结构体
@@ -104,18 +106,18 @@ class MessageObj(object):
             self.CloudCustomData = extra_data
 
 
-
 class GroupMessageObj(object):
 
     def __init__(
-            self,
-            from_account:str,
-            send_time:int,
-            text_messages: List[MessageText] =[],
-            attachment_messages: List[MessageFile] = []):
+        self,
+        from_account: str,
+        send_time: int,
+        text_messages: List[MessageText] = [],
+        attachment_messages: List[MessageFile] = []
+    ):
 
         self.From_Account = from_account
-        self.SendTime =send_time
+        self.SendTime = send_time
         self.Random = random.randint(0, 4294967295)
         self.MsgBody = []
         for text_message in text_messages:
@@ -126,12 +128,15 @@ class GroupMessageObj(object):
 
 
 class BatchMessageObj(object):
+
     def __init__(
-            self,
-            from_account: str,
-            to_account: List[str],
-            text_messages: List[MessageText] = [],
-            attachment_messages: List[MessageFile] = [], sync_machine: int = 1):
+        self,
+        from_account: str,
+        to_account: List[str],
+        text_messages: List[MessageText] = [],
+        attachment_messages: List[MessageFile] = [],
+        sync_machine: int = 1
+    ):
         self.From_Account = from_account
         self.To_Account = to_account
         self.SyncOtherMachine = sync_machine
@@ -204,15 +209,16 @@ class GroupMemObj(object):
     群组成员
     """
 
-    def __init__(self, user_id: str, role_type: str = "",join_time:int=0,unread_msg_num:int=0):
+    def __init__(
+        self, user_id: str, role_type: str = "", join_time: int = 0, unread_msg_num: int = 0
+    ):
         self.Member_Account = user_id
         if role_type == "Admin":
             self.Role = role_type
-        if join_time >0:
+        if join_time > 0:
             self.JoinTime = join_time
-        if unread_msg_num >0:
+        if unread_msg_num > 0:
             self.UnreadMsgNum = 0
-
 
 
 class GroupAppDefinedData(object):
@@ -227,10 +233,9 @@ class GroupAppDefinedData(object):
 
 class GroupAttr(object):
 
-    def __init__(self,key:str,value:str):
+    def __init__(self, key: str, value: str):
         self.key = key
         self.value = value
-
 
 
 class GroupObj(object):
@@ -239,17 +244,18 @@ class GroupObj(object):
     """
 
     def __init__(
-            self,
-            owner_userid: str,
-            group_type: str,
-            group_name: str,
-            introdction: str = "",
-            notification: str = "",
-            face_url: str = "",
-            max_member_count: int = 500,
-            mem_list: List[GroupMemObj] = [],
-            applicationData: List[GroupAppDefinedData] = [],
-            group_id: str = ""):
+        self,
+        owner_userid: str,
+        group_type: str,
+        group_name: str,
+        introdction: str = "",
+        notification: str = "",
+        face_url: str = "",
+        max_member_count: int = 500,
+        mem_list: List[GroupMemObj] = [],
+        applicationData: List[GroupAppDefinedData] = [],
+        group_id: str = ""
+    ):
         """
 
         :param owner_userid:
@@ -263,7 +269,6 @@ class GroupObj(object):
         :param applicationData:
         :param group_id:
         """
-
 
         self.Owner_Account = owner_userid
         self.Type = group_type
@@ -377,7 +382,6 @@ class TCIMClient(object):
             return None
 
     def batch_add_users(self, user_ids: List[str]):
-
         """
         batch add users to im server
         https://cloud.tencent.com/document/product/269/4919
@@ -405,7 +409,6 @@ class TCIMClient(object):
             return None
 
     def del_user(self, user_ids: List[str]):
-
         """
           delete user in im server
           https://cloud.tencent.com/document/product/269/36443
@@ -448,7 +451,6 @@ class TCIMClient(object):
             return None
 
     def search_user(self, user_ids: List[str]):
-
         """
           search user
           https://cloud.tencent.com/document/product/269/38417
@@ -619,7 +621,7 @@ class TCIMClient(object):
             return None
 
     def delete_friends(
-            self, from_account: str, to_accounts: List[str], delete_type="Delete_Type_Both"
+        self, from_account: str, to_accounts: List[str], delete_type="Delete_Type_Both"
     ):
         """
         delete friends
@@ -929,10 +931,10 @@ class TCIMClient(object):
             return None
 
     def get_sns_group(
-            self,
-            from_account: str,
-            groups: List[str] = [],
-            need_friend_flag: str = "Need_Friend_Type_Yes"
+        self,
+        from_account: str,
+        groups: List[str] = [],
+        need_friend_flag: str = "Need_Friend_Type_Yes"
     ):
         """
         get grounds
@@ -1041,13 +1043,14 @@ class TCIMClient(object):
             return None
 
     def get_message_list(
-            self,
-            from_account: str,
-            to_account: str,
-            max_count: int,
-            from_timestamp: int,
-            to_timestamp: int,
-            last_message_key: str = ""):
+        self,
+        from_account: str,
+        to_account: str,
+        max_count: int,
+        from_timestamp: int,
+        to_timestamp: int,
+        last_message_key: str = ""
+    ):
         """
         get message
         https://cloud.tencent.com/document/product/269/42794
@@ -1105,11 +1108,7 @@ class TCIMClient(object):
             logger.error("get message failed:{}".format(e))
             return None
 
-    def draw_message(
-            self,
-            from_account: str,
-            to_account: str,
-            msg_key: str):
+    def draw_message(self, from_account: str, to_account: str, msg_key: str):
         """
         draw message
         https://cloud.tencent.com/document/product/269/38980
@@ -1137,10 +1136,7 @@ class TCIMClient(object):
             logger.error("draw message failed:{}".format(e))
             return None
 
-    def set_user_message_read(self,
-                              from_account: str,
-                              to_account: str,
-                              read_timestamp: int = 0):
+    def set_user_message_read(self, from_account: str, to_account: str, read_timestamp: int = 0):
         """
         set user message read
         https://cloud.tencent.com/document/product/269/50349
@@ -1269,13 +1265,14 @@ class TCIMClient(object):
             logger.error("group create failed:{}".format(e))
             return None
 
-    def get_group_detail(self,
-                         group_id_list: List[str],
-                         baseInfoFilter: List[str] = [],
-                         memInfoFilter: List[str] = [],
-                         appDefineDataFilterGroup: List[str] = [],
-                         appDefineDataFilterMem: List[str] = []
-                         ):
+    def get_group_detail(
+        self,
+        group_id_list: List[str],
+        baseInfoFilter: List[str] = [],
+        memInfoFilter: List[str] = [],
+        appDefineDataFilterGroup: List[str] = [],
+        appDefineDataFilterMem: List[str] = []
+    ):
         """
         https://cloud.tencent.com/document/product/269/1616
         :param group_id_list:
@@ -1386,14 +1383,16 @@ class TCIMClient(object):
             logger.error("get group info failed:{}".format(e))
             return None
 
-    def get_group_mem_info_detail(self,
-                                  group_id: str,
-                                  limit_count: int = 100,
-                                  offset: int = 0,
-                                  memInfoFilter: List[str] = [],
-                                  memRoleFilter: List[str] = [],
-                                  next: str = "",
-                                  appDefineDataFilterMem: List[str] = []):
+    def get_group_mem_info_detail(
+        self,
+        group_id: str,
+        limit_count: int = 100,
+        offset: int = 0,
+        memInfoFilter: List[str] = [],
+        memRoleFilter: List[str] = [],
+        next: str = "",
+        appDefineDataFilterMem: List[str] = []
+    ):
         """
         https://cloud.tencent.com/document/product/269/1617
         :param group_id:
@@ -1475,16 +1474,17 @@ class TCIMClient(object):
             return None
 
     def update_group_baseinfo(
-            self,
-            group_id: str,
-            group_name: str = "",
-            introduction: str = "",
-            notification: str = "",
-            face_url: str = "",
-            max_member_num: int = 0,
-            appJoinOption: str = "",
-            shutUpFlag: str = "",
-            appDefineData: List[GroupAppDefinedData] = []):
+        self,
+        group_id: str,
+        group_name: str = "",
+        introduction: str = "",
+        notification: str = "",
+        face_url: str = "",
+        max_member_num: int = 0,
+        appJoinOption: str = "",
+        shutUpFlag: str = "",
+        appDefineData: List[GroupAppDefinedData] = []
+    ):
         """
         https://cloud.tencent.com/document/product/269/1620
         :param group_id:
@@ -1531,11 +1531,7 @@ class TCIMClient(object):
             logger.error("update group info failed:{}".format(e))
             return None
 
-    def add_group_member(
-            self,
-            group_id: str,
-            mem_list: List[GroupMemObj],
-            silence: int = 1):
+    def add_group_member(self, group_id: str, mem_list: List[GroupMemObj], silence: int = 1):
         """
         https://cloud.tencent.com/document/product/269/1621
         :param group_id:
@@ -1555,11 +1551,7 @@ class TCIMClient(object):
             logger.error("add mem to group info failed:{}".format(e))
             return None
 
-    def delete_group_mem(
-            self,
-            group_id: str,
-            mem_list: List[str],
-            silence: int = 1):
+    def delete_group_mem(self, group_id: str, mem_list: List[str], silence: int = 1):
         """
         https://cloud.tencent.com/document/product/269/1622
         :param group_id:
@@ -1586,13 +1578,14 @@ class TCIMClient(object):
             return None
 
     def update_group_mem_info(
-            self,
-            group_id:str,
-            mem_id:str,
-            role_type:str="",
-            namecard:str="",
-            appMemDefineData:List[GroupAppDefinedData]=[],
-            shutUpTime:int=0):
+        self,
+        group_id: str,
+        mem_id: str,
+        role_type: str = "",
+        namecard: str = "",
+        appMemDefineData: List[GroupAppDefinedData] = [],
+        shutUpTime: int = 0
+    ):
         """
         https://cloud.tencent.com/document/product/269/1623
         :param group_id:
@@ -1611,12 +1604,11 @@ class TCIMClient(object):
             data["Role"] = role_type
         if namecard != "":
             data["NameCard"] = namecard
-        if shutUpTime >0:
+        if shutUpTime > 0:
             data["ShutUpTime"] = shutUpTime
 
-        if len(appMemDefineData) >0:
+        if len(appMemDefineData) > 0:
             data["AppMemberDefinedData"] = [i.__dict__ for i in appMemDefineData]
-
 
         try:
             query = self._gen_query()
@@ -1625,9 +1617,7 @@ class TCIMClient(object):
             logger.error("update mem to group info failed:{}".format(e))
             return None
 
-    def delete_group(
-            self,
-            group_id:str):
+    def delete_group(self, group_id: str):
         """
         https://cloud.tencent.com/document/product/269/1624
         :param group_id:
@@ -1643,15 +1633,15 @@ class TCIMClient(object):
             logger.error("update mem to group info failed:{}".format(e))
             return None
 
-
     def get_joined_groups(
-            self,
-            user_id:str,
-            limit_count:int=0,
-            offset:int=0,
-            group_type:str="",
-            baseInfoFilter:List[str]=[],
-            selfInfoFilter:List[str]=[]):
+        self,
+        user_id: str,
+        limit_count: int = 0,
+        offset: int = 0,
+        group_type: str = "",
+        baseInfoFilter: List[str] = [],
+        selfInfoFilter: List[str] = []
+    ):
         """
         https://cloud.tencent.com/document/product/269/1625
         :param user_id:
@@ -1697,22 +1687,22 @@ class TCIMClient(object):
         rest_url = "{}/group_open_http_svc/get_joined_group_list".format(self.tecent_url)
         data = {}
         data["Member_Account"] = user_id
-        if limit_count >0:
-            data["Limit"]= limit_count
-        if offset >0:
+        if limit_count > 0:
+            data["Limit"] = limit_count
+        if offset > 0:
             data["Offset"] = offset
 
         if group_type != "":
             data["GroupType"] = group_type
 
         responseFilter = {}
-        if len(baseInfoFilter) >0:
+        if len(baseInfoFilter) > 0:
             responseFilter["GroupBaseInfoFilter"] = baseInfoFilter
 
-        if len(selfInfoFilter) >0:
+        if len(selfInfoFilter) > 0:
             responseFilter["SelfInfoFilter"] = selfInfoFilter
 
-        if len(responseFilter) >0:
+        if len(responseFilter) > 0:
             data["ResponseFilter"] = responseFilter
         try:
             query = self._gen_query()
@@ -1721,12 +1711,7 @@ class TCIMClient(object):
             logger.error("update mem to group info failed:{}".format(e))
             return None
 
-
-
-    def get_mem_role_in_group(
-            self,
-            group_id:str,
-            user_ids:List[str]):
+    def get_mem_role_in_group(self, group_id: str, user_ids: List[str]):
         """
         https://cloud.tencent.com/document/product/269/1626
         :param group_id:
@@ -1755,7 +1740,7 @@ class TCIMClient(object):
         """
         rest_url = "{}/group_open_http_svc/get_role_in_group".format(self.tecent_url)
         data = {}
-        data["GroupId"] =group_id
+        data["GroupId"] = group_id
         data["User_Account"] = user_ids
         try:
             query = self._gen_query()
@@ -1764,12 +1749,7 @@ class TCIMClient(object):
             logger.error("get mem role in group failed:{}".format(e))
             return None
 
-
-    def forbid_send_msg(
-            self,
-            group_id:str,
-            user_ids:List[str],
-            shutUpTime:int):
+    def forbid_send_msg(self, group_id: str, user_ids: List[str], shutUpTime: int):
         """
         https://cloud.tencent.com/document/product/269/1627
         :param group_id:
@@ -1787,7 +1767,7 @@ class TCIMClient(object):
         data = {}
         data["GroupId"] = group_id
         data["Members_Account"] = user_ids
-        data["ShutUpTime"] =shutUpTime
+        data["ShutUpTime"] = shutUpTime
         try:
             query = self._gen_query()
             return requests.post(rest_url, params=query, data=json.dumps(data))
@@ -1795,8 +1775,7 @@ class TCIMClient(object):
             logger.error("get mem role in group failed:{}".format(e))
             return None
 
-
-    def get_group_shutup_list(self,group_id:str):
+    def get_group_shutup_list(self, group_id: str):
         """
         https://cloud.tencent.com/document/product/269/2925
         :param group_id:
@@ -1829,13 +1808,14 @@ class TCIMClient(object):
             return None
 
     def send_group_message(
-            self,
-            group_id:str,
-            messageText:List[MessageText]=[],
-            attchements:List[MessageFile]=[],
-            to_accounts:List[str]=[],
-            from_account:str="",
-            msgPriority:str="",):
+        self,
+        group_id: str,
+        messageText: List[MessageText] = [],
+        attchements: List[MessageFile] = [],
+        to_accounts: List[str] = [],
+        from_account: str = "",
+        msgPriority: str = "",
+    ):
         """
         https://cloud.tencent.com/document/product/269/1629
         :param group_id:
@@ -1858,7 +1838,7 @@ class TCIMClient(object):
         data = {}
         data["GroupId"] = group_id
         data["Random"] = random.randint(0, 4294967295)
-        if len(to_accounts) >0:
+        if len(to_accounts) > 0:
             data["To_Account"] = to_accounts
 
         if from_account != "":
@@ -1868,13 +1848,13 @@ class TCIMClient(object):
             data["MsgPriority"] = msgPriority
 
         messageBody = []
-        if len(messageText) >0:
-            messageBody.extend([ i.__dict__ for i in messageText])
+        if len(messageText) > 0:
+            messageBody.extend([i.__dict__ for i in messageText])
 
-        if len(attchements) >0:
-            messageBody.extend([ i.__dict__ for i in attchements])
+        if len(attchements) > 0:
+            messageBody.extend([i.__dict__ for i in attchements])
 
-        if len(messageBody) >0:
+        if len(messageBody) > 0:
             data["MsgBody"] = messageBody
 
         try:
@@ -1884,12 +1864,9 @@ class TCIMClient(object):
             logger.error("send message in group failed:{}".format(e))
             return None
 
-
     def send_system_message_in_group(
-            self,
-            group_id:str,
-            content:str,
-            to_accounts:List[str]=[]):
+        self, group_id: str, content: str, to_accounts: List[str] = []
+    ):
         """
         https://cloud.tencent.com/document/product/269/1630
         :param group_id:
@@ -1919,8 +1896,7 @@ class TCIMClient(object):
             logger.error("send message in group failed:{}".format(e))
             return None
 
-
-    def change_group_owner(self,group_id:str,new_owner_id:str):
+    def change_group_owner(self, group_id: str, new_owner_id: str):
         """
         https://cloud.tencent.com/document/product/269/1633
         :param group_id:
@@ -1945,8 +1921,7 @@ class TCIMClient(object):
             logger.error("change group owner failed:{}".format(e))
             return None
 
-
-    def recall_group_message(self,group_id:str,msg_ids:List[str]):
+    def recall_group_message(self, group_id: str, msg_ids: List[str]):
         """
         https://cloud.tencent.com/document/product/269/12341
         :param group_id:
@@ -1974,7 +1949,7 @@ class TCIMClient(object):
         data["GroupId"] = group_id
         msgs = []
         for i in msg_ids:
-            tmp_map= {}
+            tmp_map = {}
             tmp_map["MsgSeq"] = i
             msgs.append(tmp_map)
 
@@ -1987,12 +1962,9 @@ class TCIMClient(object):
             logger.error("recall group message failed:{}".format(e))
             return None
 
-
     def import_message_to_group(
-            self,
-            group_id:str,
-            recent_contract_flag:int=1,
-            messages:List[GroupMessageObj]=[]):
+        self, group_id: str, recent_contract_flag: int = 1, messages: List[GroupMessageObj] = []
+    ):
         """
         https://cloud.tencent.com/document/product/269/1635
         :param group_id:
@@ -2022,8 +1994,8 @@ class TCIMClient(object):
         data = {}
         data["GroupId"] = group_id
         data["RecentContactFlag"] = recent_contract_flag
-        if len(messages) >0:
-            data["MsgList"] = [ i.__dict__ for i in messages]
+        if len(messages) > 0:
+            data["MsgList"] = [i.__dict__ for i in messages]
         try:
             query = self._gen_query()
             return requests.post(rest_url, params=query, data=json.dumps(data))
@@ -2031,11 +2003,7 @@ class TCIMClient(object):
             logger.error("import group message failed:{}".format(e))
             return None
 
-
-    def import_group_members(
-            self,
-            group_id:str,
-            mem_list:List[GroupMemObj]= []):
+    def import_group_members(self, group_id: str, mem_list: List[GroupMemObj] = []):
         """
         https://cloud.tencent.com/document/product/269/1636
         :param group_id:
@@ -2069,12 +2037,7 @@ class TCIMClient(object):
             logger.error("import group message failed:{}".format(e))
             return None
 
-
-    def set_group_unread_msg_num(
-            self,
-            group_id:str,
-            mem_id:str,
-            unread_num:int):
+    def set_group_unread_msg_num(self, group_id: str, mem_id: str, unread_num: int):
         """
         https://cloud.tencent.com/document/product/269/1637
         :param group_id:
@@ -2100,11 +2063,7 @@ class TCIMClient(object):
             logger.error("import group message failed:{}".format(e))
             return None
 
-
-    def delete_group_msg_by_sender(
-            self,
-            group_id:str,
-            send_account:str):
+    def delete_group_msg_by_sender(self, group_id: str, send_account: str):
         """
         https://cloud.tencent.com/document/product/269/2359
         :param group_id:
@@ -2122,13 +2081,9 @@ class TCIMClient(object):
             logger.error("delete mesg in group  failed:{}".format(e))
             return None
 
-
     def get_msg_in_group(
-            self,
-            group_id:str,
-            msg_num:int,
-            with_recalled_msg:int=1,
-            msg_seq:int=0):
+        self, group_id: str, msg_num: int, with_recalled_msg: int = 1, msg_seq: int = 0
+    ):
         """
         https://cloud.tencent.com/document/product/269/2738
         :param group_id:
@@ -2202,7 +2157,7 @@ class TCIMClient(object):
         data["GroupId"] = group_id
         data["ReqMsgNumber"] = msg_num
         data["WithRecalledMsg"] = with_recalled_msg
-        if msg_seq >0:
+        if msg_seq > 0:
             data["ReqMsgSeq"] = msg_seq
         try:
             query = self._gen_query()
@@ -2211,7 +2166,7 @@ class TCIMClient(object):
             logger.error("get msg in group  failed:{}".format(e))
             return None
 
-    def get_online_member_num(self,group_id:str):
+    def get_online_member_num(self, group_id: str):
         """
         https://cloud.tencent.com/document/product/269/49180
         :param group_id:
@@ -2234,8 +2189,7 @@ class TCIMClient(object):
             logger.error("get mem number in online group failed:{}".format(e))
             return None
 
-
-    def get_group_attr(self,group_id:str):
+    def get_group_attr(self, group_id: str):
         """
         https://cloud.tencent.com/document/product/269/67012
         :param group_id:
@@ -2267,7 +2221,7 @@ class TCIMClient(object):
             logger.error("get group attr failed:{}".format(e))
             return None
 
-    def update_group_attr(self,group_id:str,attr_list:List[GroupAttr]):
+    def update_group_attr(self, group_id: str, attr_list: List[GroupAttr]):
         """
         https://cloud.tencent.com/document/product/269/67010
         :param group_id:
@@ -2283,7 +2237,7 @@ class TCIMClient(object):
         rest_url = "{}/group_open_http_svc/modify_group_attr".format(self.tecent_url)
         data = {}
         data["GroupId"] = group_id
-        data["GroupAttr"] = [ i.__dict__ for i in attr_list]
+        data["GroupAttr"] = [i.__dict__ for i in attr_list]
         try:
             query = self._gen_query()
             return requests.post(rest_url, params=query, data=json.dumps(data))
@@ -2291,8 +2245,7 @@ class TCIMClient(object):
             logger.error("update group attrfailed:{}".format(e))
             return None
 
-
-    def clean_group_attr(self,group_id:str):
+    def clean_group_attr(self, group_id: str):
         """
         https://cloud.tencent.com/document/product/269/67009
         :param group_id:
@@ -2317,37 +2270,5 @@ class TCIMClient(object):
 
 if __name__ == "__main__":
     pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     pass
