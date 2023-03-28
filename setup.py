@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tencentcloud-sdk-python-im",
-    version="0.9.3",
-    author="Robert Wen",
-    author_email="robert@pinclr.com",
+    version="0.9.4",
+    author="Pinclr Tech",
+    author_email="coding@pinclr.com",
     description="Python API Client for Tencent Cloud Instant Messaging Service",
     long_description=long_description,
     long_description_content_type="text/markdown",
