@@ -1,2 +1,2 @@
-requests==2.25.1
+requests==2.31.0
 tls-sig-api-v2==1.1
